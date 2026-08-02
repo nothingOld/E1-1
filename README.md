@@ -109,13 +109,13 @@ git version 2.53.0
 - [x] 권한 실습 (파일 1개 + 디렉토리 1개, 전/후 비교)
 - [x] Docker 설치 점검 (version, info)
 - [x] Docker 기본 운영 (images/ps/logs/stats)
-- [ ] 컨테이너 실행 (hello-world, ubuntu 진입)
-- [ ] 커스텀 이미지 (Dockerfile 직접 작성 → 빌드·실행 성공)
-- [ ] 포트 매핑 접속 증거 (주소창+응답화면 함께)
-- [ ] 볼륨 영속성 검증 (삭제 전/후 데이터 유지)
-- [ ] Git 설정 (config --list)
-- [ ] GitHub 연동 증거
-- [ ] 민감정보 마스킹 완료
+- [x] 컨테이너 실행 (hello-world, ubuntu 진입)
+- [x] 커스텀 이미지 (Dockerfile 직접 작성 → 빌드·실행 성공)
+- [x] 포트 매핑 접속 증거 (주소창+응답화면 함께)
+- [x] 볼륨 영속성 검증 (삭제 전/후 데이터 유지)
+- [x] Git 설정 (config --list)
+- [x] GitHub 연동 증거
+- [x] 민감정보 마스킹 완료
 
 
 ---
@@ -261,7 +261,6 @@ image		mission1.md	README.md	test_dir
 - 프로젝트가 이동해도 동작해야 하면 `상대 경로`
 
 ---
-
 
 ## 2) 권한 실습
 - 권한을 확인/변경하는 명령을 수행하고, 변경 전/후 비교를 기술 문서에 남긴다.
@@ -461,14 +460,14 @@ Cannot connect to the Docker daemon at unix:**** Is the docker daemon running?
 
 
 **이미지 목록 확인**
+**현재 이미지 목록 확인(작업전)**
 ```
- # 현재 이미지 목록 확인(작업전)
 sevencvter4085@c6r9s8 E1-1 % docker images
 REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
 ```
 
+**이미지 가져오기**
 ```
- # 이미지 가져오기
 sevencvter4085@c6r9s8 E1-1 % docker pull hello-world
 Using default tag: latest
 latest: Pulling from library/hello-world
@@ -478,19 +477,18 @@ Status: Downloaded newer image for hello-world:latest
 docker.io/library/hello-world:latest
 ```
 
+**이미지 목록 재확인(작업 후)**
 ```
- # 이미지 목록 재확인(작업 후)
 sevencvter4085@c6r9s8 E1-1 % docker images          
 REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
 hello-world   latest    e2ac70e7319a   4 months ago   10.1kB
 ```
 
+**컨테이너 실행 및 확인**
+**hello-world는 실행 후 바로 종료**
+**docker ps는 실행 중인 컨테이너 확인이라 출력에 포함 되지 않음**
+**docker ps -a로 종료된 컨테이너 확인시 hello-world 컨테이너 STATUS(Exited) 확인 가능**
 ```
- # 컨테이너 실행 및 확인
- # hello-world는 실행 후 바로 종료
- # docker ps는 실행 중인 컨테이너 확인이라 출력에 포함 되지 않음
- # docker ps -a로 종료된 컨테이너 확인시 hello-world 컨테이너 STATUS(Exited) 확인 가능
-
 sevencvter4085@c6r9s8 ~ % docker run hello-world
 
 Hello from Docker!
@@ -522,10 +520,9 @@ CONTAINER ID   IMAGE         COMMAND    CREATED          STATUS                 
 9677d488f331   hello-world   "/hello"   21 seconds ago   Exited (0) 20 seconds ago             confident_brahmagupta
 ```
 
+**docker logs**
+**위에서 docker ps -a 로 확인 된 CONTINAER ID를 이용**
 ```
- # docker logs
- # 위에서 docker ps -a 로 확인 된 CONTINAER ID를 이용
-
 sevencvter4085@c6r9s8 ~ % docker logs 9677d488f331
 
 Hello from Docker!
@@ -551,12 +548,11 @@ For more examples and ideas, visit:
 
 ```
 
+**docker stats**
+**stats의 기본 동작은 실시간 모니터링이다.**
+**--no-stream 을 붙이면 스냅샷(현재 상태 한 번만 찍기) 확인이 가능하다**
+**hello-world는 실행 후 바로 종료 되기 때문에 기록은 있지만 전부 0B/0으로 껍데기만 남은 상태이다.**
 ```
- # docker stats
- # stats의 기본 동작은 실시간 모니터링이다.
- # --no-stream 을 붙이면 스냅샷(현재 상태 한 번만 찍기) 확인이 가능하다
- # hello-world는 실행 후 바로 종료 되기 때문에 기록은 있지만 전부 0B/0으로 껍데기만 남은 상태이다.
-
 sevencvter4085@c6r9s8 ~ % docker stats --no-stream 9677d488f331
 CONTAINER ID   NAME                    CPU %     MEM USAGE / LIMIT   MEM %     NET I/O   BLOCK I/O   PIDS
 9677d488f331   confident_brahmagupta   0.00%     0B / 0B             0.00%     0B / 0B   0B / 0B     0
@@ -597,12 +593,14 @@ For more examples and ideas, visit:
 - `-t`는 터미널 화면 표시(tty)    → 터미널 화면을 사용할 수 있도록 연결
 - `/bin/bash`                → 컨테이너 안에서 실행할 프로그램
 
+**이미지 리스트 확인**
 ```
- # 이미지 리스트 확인
 sevencvter4085@c6r8s8 ~ % docker images
 REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
+```
 
- # 우분투 이미지 다운로드
+**우분투 이미지 다운로드**
+```
 sevencvter4085@c6r8s8 ~ % docker pull ubuntu
 Using default tag: latest
 latest: Pulling from library/ubuntu
@@ -611,25 +609,36 @@ a3679419df18: Pull complete
 Digest: sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb
 Status: Downloaded newer image for ubuntu:latest
 docker.io/library/ubuntu:latest
+```
 
- # 우분투 실행
+
+**우분투 실행**
+```
 sevencvter4085@c6r8s8 ~ % docker run -it ubuntu /bin/bash
 root@ea9cb3a4cc37:/# 
+```
 
- # 실행된 컨테이너 내부에서 현재 위치 확인
+**실행된 컨테이너 내부에서 현재 위치 확인**
+```
 root@ea9cb3a4cc37:/# pwd
 /
+```
 
- # 파일 목록 확인
+**파일 목록 확인**
+```
 root@ea9cb3a4cc37:/# ls
 bin   dev  home  lib64  mnt  proc  run   srv  tmp  var
 boot  etc  lib   media  opt  root  sbin  sys  usr
+```
 
- # 메세지 출력
+**메세지 출력**
+```
 root@ea9cb3a4cc37:/# echo "hello ubuntu"
 hello ubuntu
+```
 
- # 운영제체 정보 확인
+**운영제체 정보 확인**
+```
 root@ea9cb3a4cc37:/# cat /etc/os-release
 PRETTY_NAME="Ubuntu 26.04 LTS"
 NAME="Ubuntu"
@@ -704,21 +713,29 @@ LOGO=ubuntu-logo
 - exec → 실행 중인 컨테이너 안에서 새로운 명령어를 별도로 실행
 - attach는 나오는 방법에 따라 컨테이너가 종료될 수 있다.
 - exec는 실행한 명령이나 셸이 종료되어도 기존 컨테이너는 보통 계속 실행된다.
+
+**ubuntu 실행**
 ```
- # ubuntu 실행
 sevencvter4085@c6r9s8 ~ % docker run -it ubuntu /bin/bash
 root@50f085ca99ac:/# 
+```
 
- # 컨테이너를 종료하지 않고 호스트로
+**컨테이너를 종료하지 않고 호스트로**
+```
 #Ctrl + P Ctrl + Q
+```
 
-# 실행중인 컨테이너 확인
- # STATUS가 Up이면 정상
+**실행중인 컨테이너 확인**
+**STATUS가 Up이면 정상**
+```
 sevencvter4085@c6r9s8 ~ % docker ps
 CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES
 50f085ca99ac   ubuntu    "/bin/bash"   51 seconds ago   Up 50 seconds             gifted_bouman
+```
 
-  # attach 실습
+
+**attach 실습**
+```
 root@50f085ca99ac:/# docker attach 50f085ca99ac
 root@50f085ca99ac:/# 
 
@@ -728,8 +745,11 @@ root@50f085ca99ac:/# pwd
 /
 root@50f085ca99ac:/# hostname
 50f085ca99ac
+```
 
- # exit
+
+**exit**
+```
 sevencvter4085@c6r9s8 ~ % docker attach 50f085ca99ac              
 root@50f085ca99ac:/# exit
 exit
@@ -741,30 +761,34 @@ sevencvter4085@c6r9s8 ~ % docker ps -a
 CONTAINER ID   IMAGE         COMMAND       CREATED          STATUS                     PORTS     NAMES
 50f085ca99ac   ubuntu        "/bin/bash"   15 minutes ago   Exited (0) 2 minutes ago             gifted_bouman
 434e4fdcdf6a   ubuntu        "/bin/bash"   8 minutes ago   Up 8 minutes                      trusting_chebyshev
+```
 
- # 컨테이너 삭제 
+**컨테이너 삭제 **
+```
 sevencvter4085@c6r9s8 ~ % docker rm 50f085ca99ac
 50f085ca99ac
 sevencvter4085@c6r9s8 ~ % docker ps -a          
 CONTAINER ID   IMAGE         COMMAND       CREATED         STATUS                  PORTS     NAMES
 434e4fdcdf6a   ubuntu        "/bin/bash"   8 minutes ago   Up 8 minutes                      trusting_chebyshev
-
 ```
 
+**exec 실습**
+**ubuntu 실행**
 ```
- # exec 실습
-
- # ubuntu 실행
 sevencvter4085@c6r9s8 ~ % docker run -it ubuntu /bin/bash
 root@434e4fdcdf6a:/# 
+```
 
- # 실행중인 컨테이너 확인
+**실행중인 컨테이너 확인**
+```
 sevencvter4085@c6r9s8 ~ % docker ps
 CONTAINER ID   IMAGE     COMMAND       CREATED              STATUS              PORTS     NAMES
 434e4fdcdf6a   ubuntu    "/bin/bash"   About a minute ago   Up About a minute             trusting_chebyshev
+```
 
- # exec로 ls 명령어 실행
- # 해당 컨테이너에 직접 들어가지 않게 됨
+**exec로 ls 명령어 실행**
+**해당 컨테이너에 직접 들어가지 않게 됨**
+```
 sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac ls /
 bin
 boot
@@ -786,8 +810,10 @@ tmp
 usr
 var
 sevencvter4085@c6r9s8 ~ % 
+```
 
- # exec를 이용해서 파일 생성 후 확인
+**exec를 이용해서 파일 생성 후 확인**
+```
 sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac touch /test.txt
 sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac ls /         
 bin
@@ -814,8 +840,8 @@ var
 ```
 
 ## 6) Dockerfile 기반 커스텀 이미지 제작
+**index.html 생성 후 확인**
 ```
- # index.html 생성 후 확인
 sevencvter4085@c6r9s8 app % nano index.html
 sevencvter4085@c6r9s8 app % ls
 index.html
@@ -832,8 +858,8 @@ sevencvter4085@c6r9s8 app % cat index.html
 </html>
 ```
 
+**nginx 설정 파일 만들기**
 ```
- # nginx 설정 파일 만들기
 sevencvter4085@c6r9s8 app % nano default.conf
 sevencvter4085@c6r9s8 app % cat default.conf 
 server {
@@ -859,8 +885,8 @@ server {
 }
 ```
 
+**Dockerfile 생성 후 확인**
 ```
- # Dockerfile 생성 후 확인
 sevencvter4085@c6r9s8 app % nano Dockerfile
 sevencvter4085@c6r9s8 app % cat Dockerfile
 
@@ -901,8 +927,8 @@ EXPOSE 80
         - `-p 8080:80`
 
 
+**커스텀 이미지 빌드**
 ```
- # 커스텀 이미지 빌드
 sevencvter4085@c6r9s8 app % docker build -t custom-nginx:v1 .             
 [+] Building 6.6s (7/7) FINISHED                                docker:orbstack
  => [internal] load build definition from Dockerfile                       0.2s
@@ -923,8 +949,8 @@ sevencvter4085@c6r9s8 app % docker build -t custom-nginx:v1 .
 - `.` > 빌드 컨텍스트: 현재 폴더
     - 마지막의 `.`은 생략하면 안된다.
 
+**이미지 생성 확인**
 ```
- # 이미지 생성 확인
 sevencvter4085@c6r9s8 app % docker images
 REPOSITORY     TAG       IMAGE ID       CREATED         SIZE
 custom-nginx   v1        cb1b2d4f8faf   3 minutes ago   62.4MB <<
@@ -933,8 +959,8 @@ ubuntu         latest    de7345b16e94   2 weeks ago     100MB
 hello-world    latest    e2ac70e7319a   4 months ago    10.1kB
 ```
 
+**커스텀 컨테이너 실행 후 상태 확인**
 ```
- # 커스텀 컨테이너 실행 후 상태 확인
 docker run -d --name custom-nginx-container -p 8080:80 custom-nginx:v1
 sevencvter4085@c6r9s8 app % docker ps
 CONTAINER ID   IMAGE             COMMAND                   CREATED          STATUS          PORTS                                     NAMES
@@ -953,9 +979,11 @@ fe4a1fa1dcc4   custom-nginx:v1   "/docker-entrypoint.…"   2 minutes ago    Up 
 - 포트 매핑은 다음처럼 이해하면 된다.
     - 브라우저 localhost:8080 > Mac의 8080번 포트 > 컨테이너의 80번 포트 > NGINX
 
+**브라우저 접속 화면**
+![alt text](./image/custom_image.png)
 
+**터미널에서 웹페이지 확인**
 ```
- # 터미널에서 웹페이지 확인
 sevencvter4085@c6r9s8 app % curl http://localhost:8080
 <!DOCTYPE html>
 <html>
@@ -967,8 +995,10 @@ sevencvter4085@c6r9s8 app % curl http://localhost:8080
     <p>This is my custom NGINX container.</p>
 </body>
 </html>
+```
 
- # 응답 헤더 및 헬스체크
+**응답 헤더 및 헬스체크**
+```
 sevencvter4085@c6r9s8 app % curl -i http://localhost:8080/health
 HTTP/1.1 200 OK
 Server: nginx
@@ -983,35 +1013,653 @@ healthy
 
 
 ## 7) Docker 볼륨 영속성 검증
-- 컨테이너를 삭제해도 데이터가 유지되는지 확인하는 과정이다.
+- 도커 볼륨 영속성이란 컨테이너를 삭제해도 저장한 데이터가 유지되는 성질
+- 컨테이너 내부에만 저장한 데이터는 컨테이너를 삭제하면 함께 사라진다.
+- 반면 Docker 볼륨은 컨테이너와 별도로 Docker가 관리하므로 데이터가 남는다.
+- 컨테이너 내부 저장
+    - 컨테이너 삭제 → 데이터 삭제
+- Docker 볼륨 저장
+    - 컨테이너 삭제 → 데이터 유지
+    - 새 컨테이너에 같은 볼륨 연결 → 기존 데이터 사용 가능
+- 예를 들어 데이터베이스 파일을 볼륨에 저장하면, 기존 DB 컨테이너를 삭제하고 새로 만들어도 같은 볼륨을 연결하여 데이터를 그대로 사용할 수 있다.
+**핵심: 컨테이너는 삭제할 수 있는 실행 환경이고, 볼륨은 데이터를 지속적으로 보관하는 저장 공간이다.**
 
+**볼륨 생성 및 연결**
 ```
- # volume 생성
-
-```
-
-```
- # 컨테이너에 연결
+sevencvter4085@c6r9s8 E1-1 % docker volume create my-data
+sevencvter4085@c6r9s8 E1-1 % docker run -d --name vol-test -v my-data:/app-data ubuntu sleep infinity
+cf9dacbb3888f9edb1445aefcc0cfb56afe25a6b1f3267f0c5be81fb09e1322b
 ```
 
+**데이터 쓰기 및 컨테이너 강제 삭제**
 ```
- # 컨컨테이너 삭제 전/후로 데이터를 확인하여 데이터가 유지됨을 증명
+sevencvter4085@c6r9s8 E1-1 % docker exec vol-test sh -c "echo 'preserved' > /app-data/log.txt"
+sevencvter4085@c6r9s8 E1-1 % docker rm -f vol-test
+vol-test
 ```
 
+**새로운 컨테이너에서 데이터 유지 확인**
 ```
- # 컨컨테이너 삭제 전/후로 데이터를 확인하여 데이터가 유지됨을 증명
-```
+sevencvter4085@c6r9s8 E1-1 % docker run --rm -v my-data:/app-data ubuntu cat /app-data/log.txt
+preserved
 
+sevencvter4085@c6r9s8 E1-1 % docker ps -a
+CONTAINER ID   IMAGE     COMMAND               CREATED         STATUS         PORTS     NAMES
+cf049ee3fc71   ubuntu    "tail -f /dev/null"   7 minutes ago   Up 7 minutes             volume-test-2
+
+sevencvter4085@c6r9s8 E1-1 % docker volume ls
+DRIVER    VOLUME NAME
+local     my-data
+local     practice-volume
+```
 
 ## 8) Git 설정 및 GitHub 연동
 
+**Git 사용자 정보/기본 브랜치 설정을 완료하고 git config --list 결과를 기록**
+ 
+**git 설치상태 확인**
 ```
- # Git 사용자 정보/기본 브랜치 설정을 완료하고 git config --list 결과를 기록
+sevencvter4085@c6r9s8 E1-1 % git --version
+git version 2.53.0
 ```
 
+**git 사용자 정보 설정**
+**--global을 붙여서 사용하면 전역 설정**
+**--local을 사용 하면 현재 프로젝트에만 사용자 정보 설정**
 ```
- # GitHub 로그인 및 저장소 연동을 완료하고, 연동 증거(스크린샷 등)를 기술 문서에 첨부
+sevencvter4085@c6r9s8 E1-1 % git config --global user.name "****"
+sevencvter4085@c6r9s8 E1-1 % git config --global user.email "****@****.com"
 ```
 
+**git 설정 결과 확인**
+```
+sevencvter4085@c6r9s8 E1-1 % git config --list
+...
+user.name=****
+user.email=****
+...
+remote.origin.url=https://github.com/nothingOld/E1-1.git
+...
+branch.main.remote=origin
+branch.main.merge=refs/heads/main
+branch.main.vscode-merge-base=origin/main
+sevencvter4085@c6r9s8 E1-1 % 
+```
 
-## 9) 보너스 과제
+**GitHub 로그인 및 저장소 연동을 완료하고, 연동 증거(스크린샷 등)를 기술 문서에 첨부**
+**Github 로그인 brew로 설치가 안됨**
+```
+sevencvter4085@c6r9s8 E1-1 % gh auth login
+sevencvter4085@c6r9s8 E1-1 % gh auth setup-git
+sevencvter4085@c6r9s8 E1-1 % gh auth status
+```
+
+**원격 저장소 연결**
+```
+sevencvter4085@c6r9s8 E1-1 % git remote add origin https://github.com/nothingOld/E1-1.git
+```
+
+**연결 결과 확인**
+```
+sevencvter4085@c6r9s8 E1-1 % git remote -v
+origin  https://github.com/nothingOld/E1-1.git (fetch)
+origin  https://github.com/nothingOld/E1-1.git (push)
+sevencvter4085@c6r9s8 E1-1 % 
+```
+
+**CLI를 통한 push 전체 과정**
+**git 저장소 초기화**
+```
+sevencvter4085@c6r9s8 E1-1 % git init
+```
+
+**파일 전체 스테이징**
+```
+sevencvter4085@c6r9s8 E1-1 % git add .
+```
+
+**커밋**
+```
+sevencvter4085@c6r9s8 E1-1 % git commit -m "message"
+```
+
+**푸시 (최초 1회)**
+**최초 푸시에 업스트림을 설정하고 이후 git push만 입력해도 동일 작동**
+```
+sevencvter4085@c6r9s8 E1-1 % git push -u origin main
+```
+
+## 9) 보너스 과제1
+1. Docker Compose 기초
+- docker-compose.yml의 기본 구조를 학습하고, 단일 서비스를 Compose로 실행한다.
+- 배움 포인트: 컨테이너 실행 명령이 “문서화된 실행 설정”으로 바뀌는 이유
+
+**Docker Compose란**
+- 컨테이너를 실행하는 데 필요한 이미지, 포트, 볼륨, 환경변수 등의 옵션을 긴 명령어로 직접 입력하는 대신, YAML 파일에 실행 설정으로 기록한 뒤 docker compose up으로 실행하는 방식이다.
+- `docker-compose`는 과거 Compose V1 명령어
+- `docker compose`는 Compose V2 이후 명령어
+
+**Compose 사용 가능 여부 확인**
+```
+sevencvter4085@c6r9s8 E1-1 % docker compose version
+Docker Compose version v2.40.3
+```
+
+**실습을 위한 폴더 생성 및 빈 폴더 확인**
+```
+sevencvter4085@c6r9s8 E1-1 % mkdir docker-compose-baisc
+sevencvter4085@c6r9s8 E1-1 % cd docker-compose-baisc 
+sevencvter4085@c6r9s8 docker-compose-baisc % ls -la
+total 0
+drwxr-xr-x   2 sevencvter4085  sevencvter4085   64  8  2 20:48 .
+drwxr-xr-x  11 sevencvter4085  sevencvter4085  352  8  2 20:48 ..
+```
+
+**docker-compose.yml 작성 및 확인**
+```
+sevencvter4085@c6r9s8 docker-compose-baisc % nano docker-compose.yml
+sevencvter4085@c6r9s8 docker-compose-baisc % cat docker-compose.yml 
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8081:80"
+```
+
+**Compose 파일 문법 검사**
+- 직접 작성하지 않은 name, networks, mode, protocol 등이 나타날 수 있는데 오류가 아니다.
+- Compose가 짧은 설정을 실제 적용할 전체 설정 형태로 변환해서 보여주는 것이다.
+- 문법 오류가 있으면 `docker compose config` 단계에서 먼저 수정해야 한다.
+```
+sevencvter4085@c6r9s8 docker-compose-baisc % docker compose config
+name: docker-compose-baisc
+services:
+  web:
+    image: nginx:alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "8081"
+        protocol: tcp
+networks:
+  default:
+```
+
+**Compose 파일 구조 이해하기**
+- `service`
+    - Compose가 관리할 서비스 목록을 정의하는 최상위 항목
+    - 서비스는 실제 실행 시 하나 이상의 컨테이너로 구현된다.
+    - Compose 파일에는 반드시 최상위 `services` 항목이 있어야 하며, 그 아래에 서비스 이름과 실행 설정을 작성합니다.
+- `web`
+    - `web`은 내가 임의로 정한 서비스 이름
+    - Nginx를 사용한다고 해서 반드시 이름을 nginx라고 해야 하는 것은 아니다.
+    - 다만 이후 Compose 명령에서 서비스 이름을 사용할 수 있으므로 역할이 드러나는 이름을 사용하는 것이 좋다.
+- `image`
+    - 컨테이너를 만들 때 사용할 이미지를 지정
+        - 이미지 이름: `nginx`
+        - 이미지 태그: `alpine`
+    - 로컬에 이미지가 없다면 Compose가 이미지를 내려받아 실행
+    - 기존 `docker run nginx:alpine`과 같음
+- `ports`
+    - 호스트와 컨테이너의 포트를 연결
+    - 호스트 포트(8081):컨테이터 포트(80)
+    - 따라서 브라우저에서 `http://localhost:8081`로 접속
+    - 접속 흐름은 웹 브라우저 > Mac의 8081포트 > Nginx 컨테이너의 80번 포트
+    - `ports`는 호스트와 컨테이너 간 포트 매핑을 정의합니다.
+    - 짧은 문법에서는 `"호스트 포트:컨테이너 포트"` 형식을 사용하며, YAML 해석 문제를 피하기 위해 문자열로 따옴표를 붙이는 것이 권장된다.
+- `version:`
+    - 인터넷의 오래된 예제를 보면 다음과 같은 내용이 있을 수 있다.
+    - 현재는 `verion:`을 작성하지 않는다.
+    - 최상위 `version` 속성은 현재 Compose Specification에서 이전 버전과의 호환성을 위해서만 남아 있으며, 사용하면 obsolete 경고가 나타날 수 있다.
+    - Compose는 `version` 값과 관계없이 현재 지원하는 최신 스키마로 파일을 해석한다.
+```
+version: "3.8"
+
+services:
+  web:
+    image: nginx
+```
+
+**단일 서비스 실행**
+- `up`: Coompose 파일에 정의된 서비스를 생성하고 실행
+- `-d`: 백그라운드 실행
+```
+sevencvter4085@c6r9s8 docker-compose-baisc % docker compose up -d
+[+] Running 9/9
+ ✔ web Pulled 3.9s 
+   ...
+[+] Running 2/2
+ ✔ Network docker-compose-baisc_default  Created 0.1s 
+ ✔ Container docker-compose-baisc-web-1  Started 0.5s    
+```
+- 마지막 2둘의 의미는 다음과 같다.
+    - Compose 프로젝트용 네트워크 생성
+    - web 서비스 컨테이너 생성 및 시작
+    - 서비스는 하나지만, 네트워크도 함께 관리되므로 2/2로 표시될 수 있다.
+
+**실행 상태 확인**
+```
+sevencvter4085@c6r9s8 docker-compose-baisc % docker compose ps
+NAME                         IMAGE          COMMAND                   SERVICE   CREATED         STATUS         PORTS
+docker-compose-baisc-web-1   nginx:alpine   "/docker-entrypoint.…"   web       2 minutes ago   Up 2 minutes   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
+```
+**중요하게 확인 할 항목**
+
+| 항목        | 의미              |
+| --------- | --------------- |
+| `NAME`    | 실제 생성된 컨테이너 이름  |
+| `IMAGE`   | 사용 중인 이미지       |
+| `SERVICE` | Compose 서비스 이름  |
+| `STATUS`  | 실행 상태           |
+| `PORTS`   | 호스트와 컨테이너 포트 연결 |
+
+**브라우저를 통힌 Nginx 접속 확인**
+- 브라우저에 다음 주소를 입력
+    - `http://localhost:8081`
+![alt text](./image/bonus1.png)
+
+**터미널을 통한 Nginx 접속 확인**
+```
+sevencvter4085@c6r9s8 docker-compose-baisc % curl http://localhost:8081
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, nginx is successfully installed and working.
+Further configuration is required for the web server, reverse proxy, 
+API gateway, load balancer, content cache, or other features.</p>
+
+<p>For online documentation and support please refer to
+<a href="https://nginx.org/">nginx.org</a>.<br/>
+To engage with the community please visit
+<a href="https://community.nginx.org/">community.nginx.org</a>.<br/>
+For enterprise grade support, professional services, additional 
+security features and capabilities please refer to
+<a href="https://f5.com/nginx">f5.com/nginx</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+**로그 확인**
+- `docker compose logs` > 전체 서비스 확인
+- `docker compose logs web` > web 서비스만 확인
+- `docker compose logs -f web` > 실시간 확인
+```
+evencvter4085@c6r9s8 docker-compose-baisc % docker compose logs -f web
+web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+...
+web-1  | 2026/08/02 12:01:43 [notice] 1#1: start worker process 35
+web-1  | 2026/08/02 12:05:13 [error] 30#30: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.97.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8081", referrer: "http://localhost:8081/"
+web-1  | 192.168.97.1 - - [02/Aug/2026:12:05:13 +0000] "GET / HTTP/1.1" 200 896 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+...
+web-1  | 192.168.97.1 - - [02/Aug/2026:12:09:54 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+```
+
+**컨테이너 중지/삭제**
+```
+sevencvter4085@c6r9s8 docker-compose-baisc % docker compose ps -a 
+NAME                         IMAGE          COMMAND                   SERVICE   CREATED         STATUS                     PORTS
+docker-compose-baisc-web-1   nginx:alpine   "/docker-entrypoint.…"   web       9 minutes ago   Exited (0) 6 seconds ago   
+sevencvter4085@c6r9s8 docker-compose-baisc % docker compose down
+[+] Running 2/2
+ ✔ Container docker-compose-baisc-web-1  Removed                                                                         0.0s 
+ ✔ Network docker-compose-baisc_default  Removed                                                                         0.1s 
+sevencvter4085@c6r9s8 docker-compose-baisc % docker compose ps -a
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+sevencvter4085@c6r9s8 docker-compose-baisc % 
+```
+
+**배움 포인트**
+**핵심:** Docker Compose는 일회성 실행 명령을 파일로 기록해, 실행 환경을 쉽게 확인·공유·재현·관리할 수 있게 한다.
+| 구분    | `docker run`         | Docker Compose                     |
+| ----- | -------------------- | ---------------------------------- |
+| 실행 방식 | 터미널에 실행 옵션을 직접 입력    | 실행 설정을 `docker-compose.yml` 파일에 작성 |
+| 설정 확인 | 명령 기록이나 사용자의 기억에 의존  | 파일에서 이미지, 포트, 볼륨 등을 바로 확인          |
+| 재현성   | 같은 명령을 다시 정확히 입력해야 함 | 같은 파일로 `docker compose up -d` 실행   |
+| 공유    | 긴 실행 명령을 별도로 전달해야 함  | Compose 파일만 공유하면 됨                 |
+| 변경 이력 | 터미널 명령은 변경 추적이 어려움   | Git으로 누가, 언제, 무엇을 변경했는지 확인 가능      |
+
+
+## 10) 보너스 과제2
+2. Docker Compose 멀티 컨테이너
+- 웹 서버 + (임의의 보조 서비스) 2개 이상을 Compose로 함께 실행한다.
+- 컨테이너 간 네트워크 통신이 가능한지 확인한다.
+- 배움 포인트: 네트워크/서비스 디스커버리 개념 맛보기
+
+**멀티 컨테이너란?**
+- 멀티 컨테이너는 하나의 애플리케이션을 두 개 이상의 컨테이너로 구성하는 방식이다.
+- 예를 들어 실제 웹 서비스는 다음처럼 역할을 나눌 수 있다.
+    - 웹 서버 컨테이너 / 백엔드 애플리케이션 컨테이너
+- Docker Compose는 이러한 여러 서비스를 하나의 Compose 파일에 정의하고 함께 실행하는 도구이다.
+
+**이번 실습에서는 복잡한 데이터베이스 대신 다음 두 서비스를 사용**
+| 서비스      | 역할                               |
+| -------- | -------------------------------- |
+| `web`    | Nginx 웹 서버                       |
+| `client` | `web` 서비스에 접속하여 통신을 확인하는 보조 컨테이너 |
+
+- 구조는 다음과 같다.
+    - Mac 브라우저(localhost:8082) > web 컨테이너(Nginx :80) < client 컨테이너(http://web:80)
+
+**네트워크란?**
+- 컨테이너 네트워크는 컨테이너끼리 데이터를 주고받을 수 있도록 연결해 주는 가상의 통신 공간
+- 같은 네트워크에 연결된 컨테이너 → 서로 통신 가능
+- 서로 다른 네트워크에 있는 컨테이너 → 기본적으로 직접 통신 불가
+- Compose로 서비스를 실행하면 별도로 네트워크를 작성하지 않아도 프로젝트 전용 기본 네트워크가 자동 생성되고, Compose 파일에 정의된 서비스들이 그 네트워크에 연결
+- 일반적으로 `<프로젝트명>_defalut`형태
+
+**서비스 디스커버리란?**
+- 서비스 디스커버리(Service Discovery)는 통신하려는 서비스를 IP 주소가 아니라 서비스 이름으로 찾는 기능
+- 이번 Compose 파일에 아래와 같은 서비스가 있다고 가정
+```
+services:
+  web:
+    image: nginx:alpine
+
+  client:
+    image: busybox:1.36
+```
+- `client` 컨테이너는 `web` 컨테이너의 IP 주소를 몰라도 다음 주소로 접근할 수 있다.
+- 여기에서 web은 컨테이너 이름을 직접 조사해서 입력한 것이 아니라 Compose 파일에 작성한 서비스 이름
+- Compose 네트워크에서는 각 서비스 이름이 내부 DNS에 등록되므로, 같은 네트워크에 연결된 컨테이너는 서비스 이름으로 상대 서비스를 찾을 수 있다.
+- 컨테이너가 다시 만들어져 IP 주소가 변경되더라도 서비스 이름은 그대로 사용할 수 있다.
+
+
+**실습 폴더 만들기**
+```
+sevencvter4085@c6r9s8 E1-1 % mkdir bonus2
+sevencvter4085@c6r9s8 E1-1 % cd bonus2
+sevencvter4085@c6r9s8 bonus2 % ls -la
+total 0
+drwxr-xr-x   2 sevencvter4085  sevencvter4085   64  8  2 21:23 .
+drwxr-xr-x  12 sevencvter4085  sevencvter4085  384  8  2 21:23 ..
+```
+
+**docker-compose.yml 작성**
+```
+sevencvter4085@c6r9s8 bonus2 % nano docker-compose.yml
+sevencvter4085@c6r9s8 bonus2 % cat docker-compose.yml 
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8082:80"
+
+  client:
+    image: busybox:1.36
+    command:
+      - sh
+      - -c
+      - while true; do sleep 3600; done
+```
+- `client`
+    - `web` 서비스와의 통신을 확인하기 위한 보조 컨테이너
+    - BusyBox는 셸과 여러 기본 UNIX 명령을 포함한 작은 이미지이므로 간단한 네트워크 확인 실습에 사용할 수 있다.
+- `command`
+    - BusyBox 컨테이너가 실행 직후 종료되지 않도록 계속 실행 상태를 유지하는 명령
+    - 원래 컨테이너는 내부의 주 프로세스가 끝나면 함께 종료
+    - 따라서 보조 컨테이너 안에서 나중에 wget, ping 등의 명령을 실행할 수 있도록 반복적으로 대기하게 만든다.
+
+**Compose 파일 검사**
+```
+sevencvter4085@c6r9s8 bonus2 % docker compose config
+name: bonus2
+services:
+  client:
+    command:
+      - sh
+      - -c
+      - while true; do sleep 3600; done
+    image: busybox:1.36
+    networks:
+      default: null
+  web:
+    image: nginx:alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "8082"
+        protocol: tcp
+networks:
+  default:
+    name: bonus2_default
+```
+
+**두개의 서비스 함께 실행**
+```
+sevencvter4085@c6r9s8 bonus2 % docker compose up -d
+[+] Running 2/2
+ ✔ client Pulled                 4.1s 
+   ✔ 034d6572bf28 Pull complete  0.8s 
+[+] Running 3/3
+ ✔ Network bonus2_default     Created  0.1s 
+ ✔ Container bonus2-client-1  Started  0.5s 
+ ✔ Container bonus2-web-1     Started  0.5s
+```
+
+| 생성 대상         | 설명             |
+| ------------- | -------------- |
+| 기본 네트워크       | 두 컨테이너가 통신할 공간 |
+| `web` 컨테이너    | Nginx 웹 서버     |
+| `client` 컨테이너 | 통신 확인용 보조 서비스  |
+
+
+**서비스 실행 상태 확인**
+```
+sevencvter4085@c6r9s8 bonus2 % docker compose ps
+NAME              IMAGE          COMMAND                   SERVICE   CREATED              STATUS              PORTS
+bonus2-client-1   busybox:1.36   "sh -c 'while true; …"   client    About a minute ago   Up About a minute   
+bonus2-web-1      nginx:alpine   "/docker-entrypoint.…"   web       About a minute ago   Up About a minute   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
+```
+
+**웹 서버 접속 확인**
+- 브라우저 접속 화면
+    - ![alt text](./image/bonus2-1.png)
+
+- 터미널에서 확인
+```
+sevencvter4085@c6r9s8 bonus2 % curl -I http://localhost:8082
+HTTP/1.1 200 OK
+Server: nginx/1.31.3
+Date: Sun, 02 Aug 2026 12:30:51 GMT
+Content-Type: text/html
+Content-Length: 896
+Last-Modified: Wed, 15 Jul 2026 16:53:52 GMT
+Connection: keep-alive
+ETag: "6a57bb20-380"
+Accept-Ranges: bytes
+```
+
+**컨테이너 간 네트워크 통신 확인**
+- `client` 컨테이너 안에서 `web` 서비스에 접속
+- `docker compose exec`는 이미 실행 중인 특정 서비스 컨테이너 내부에서 명령을 실행
+- 명령 형식은 `docker compose exec 서비스이름 실행할명령`
+- 
+```
+sevencvter4085@c6r9s8 bonus2 % docker compose exec client wget -qO- http://web
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, nginx is successfully installed and working.
+Further configuration is required for the web server, reverse proxy, 
+API gateway, load balancer, content cache, or other features.</p>
+
+<p>For online documentation and support please refer to
+<a href="https://nginx.org/">nginx.org</a>.<br/>
+To engage with the community please visit
+<a href="https://community.nginx.org/">community.nginx.org</a>.<br/>
+For enterprise grade support, professional services, additional 
+security features and capabilities please refer to
+<a href="https://f5.com/nginx">f5.com/nginx</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+**배움 포인트**
+- 네트워크
+    - Compose는 같은 프로젝트에 정의된 서비스들을 기본적으로 하나의 전용 네트워크에 연결
+    - web ───────── Compose 네트워크 ───────── client
+    - 따라서 두 컨테이너가 서로 통신 할 수 있다.
+
+- 서비스 디스커버리
+    - 컨테이너의 IP 주소를 직접 확인해서 사용하는 대신 Compose 서비스 이름을 주소처럼 사용할 수 있다.
+    - IP 주소 직접 사용
+        - http://172......2 → 컨테이너 재생성 시 변경될 수 있음
+    - 서비스 이름 사용
+        - http://web → Compose 파일에 정의된 이름으로 계속 접근
+
+**핵심**
+- Docker Compose는 같은 프로젝트의 서비스들을 기본 네트워크에 연결한다
+- 내부 DNS를 통해 각 컨테이너가 IP 주소 대신 서비스 이름으로 다른 서비스에 접근할 수 있도록 한다.
+
+## 11) 보너스 과제3
+- Compose 운영 명령어 습득
+- up, down, ps, logs를 사용해 실행/종료/상태/로그를 관리한다.
+- 배움 포인트: 운영 관점의 “상태 확인 루틴” 만들기
+
+
+**실습 폴더 생성**
+```
+sevencvter4085@c6r9s8 E1-1 % mkdir bonus3
+sevencvter4085@c6r9s8 E1-1 % cd bonus3
+sevencvter4085@c6r9s8 bonus3 % 
+```
+
+**compose.yaml 작성**
+```
+sevencvter4085@c6r9s8 bonus3 % nano compose.yaml
+sevencvter4085@c6r9s8 bonus3 % cat compose.yaml 
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8083:80"
+```
+
+**컨테이너 실행 - `up`**
+- `up`: Coompose 파일에 정의된 서비스를 생성하고 실행
+- `-d`: 백그라운드 실행
+```
+sevencvter4085@c6r9s8 bonus3 % docker compose up -d
+[+] Running 1/1
+ ✔ Container bonus3-web-1  Started    
+```
+
+**브라우저로 확인**
+- http://localhost:8083
+![alt text](./image/bonus3.png)
+
+**터미널에서 확인**
+```
+sevencvter4085@c6r9s8 bonus3 % curl http://localhost:8083
+<!DOCTYPE html>
+<html>
+...
+</html>
+```
+
+**상태 확인 - `ps`**
+```
+sevencvter4085@c6r9s8 bonus3 % docker compose ps
+NAME           IMAGE          COMMAND                   SERVICE   CREATED         STATUS         PORTS
+bonus3-web-1   nginx:alpine   "/docker-entrypoint.…"   web       2 minutes ago   Up 2 minutes   0.0.0.0:8083->80/tcp, [::]:8083->80/tcp
+```
+
+| 항목        | 의미                  |
+| --------- | ------------------- |
+| `NAME`    | 생성된 컨테이너 이름         |
+| `SERVICE` | Compose에 작성한 서비스 이름 |
+| `STATUS`  | 현재 실행 상태            |
+| `PORTS`   | 호스트와 컨테이너의 포트 연결    |
+
+
+**로그 확인 - `logs`**
+- `docker compose logs` > 전체 서비스 확인
+- `docker compose logs web` > web 서비스만 확인
+- `docker compose logs -f web` > 실시간 확인
+```
+sevencvter4085@c6r9s8 bonus3 % docker compose logs
+web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+...
+web-1  | 2026/08/02 12:46:08 [error] 31#31: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.107.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8083", referrer: "http://localhost:8083/"
+web-1  | 192.168.107.1 - - [02/Aug/2026:12:46:08 +0000] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost:8083/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+web-1  | 192.168.107.1 - - [02/Aug/2026:12:46:09 +0000] "GET / HTTP/1.1" 200 896 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+```
+
+**서비스 종료 및 삭제 - `down`**
+- down은 Compose로 생성한 다음 항목을 정리
+    - 컨테이너 종료
+    - 컨테이너 삭제
+    - 기본 Compose 네트워크 삭제
+```
+sevencvter4085@c6r9s8 bonus3 % docker compose down
+[+] Running 2/2
+ ✔ Container bonus3-web-1  Removed                                                                                                                                  0.3s 
+ ✔ Network bonus3_default  Removed
+sevencvter4085@c6r9s8 bonus3 % 
+sevencvter4085@c6r9s8 bonus3 % docker compose ps
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+sevencvter4085@c6r9s8 bonus3 % 
+```
+
+**배움 포인트: 상태 확인 루틴**
+- 서비스 실행
+    - docker compose up -d
+- 실행 상태 확인
+    - docker compose ps
+- 이상 여부 확인
+    - docker compose logs --tail 20
+- 특정 서비스만 확인 할 때
+    - docker compose logs --tail 20 web
+- 필요하면 실시간 로그 확인
+    - docker compose logs -f
+- 작업 종료
+    - docker compose down
+
+**명령어 정리**
+| 명령어                      | 역할                          |
+| ------------------------ | ------------------------      |
+| `docker compose up -d`   | 서비스를 백그라운드에서 실행          |
+| `docker compose ps`      | Compose 서비스의 현재 상태 확인     |
+| `docker compose logs`    | 서비스에서 발생한 로그 확인          |
+| `docker compose logs -f` | 로그를 실시간으로 계속 확인          |
+| `docker compose down`    | 컨테이너와 Compose 네트워크 종료·삭제 |
+| `--tail 20`              | 로그의 가장 마지막 20줄만 확인       |
+
+
+## 12) 보너스 과제4
+- Dockerfile 또는 Compose에서 환경 변수를 주입해 서버 포트/모드를 바꿔본다.
+- 배움 포인트: 설정과 코드의 분리
+
+
+
+
+
+## 13) Github SSH키 설정
+- HTTPS 대신 SSH로 푸시가 가능하도록 키를 등록하고 동작을 확인한다.
+- 배움 포인트: 인증 방식 차이와 보안 습관
