@@ -2003,3 +2003,24 @@ sevencvter4085@c6r9s8 E1-1 % git remote -v
 origin  git@github.com:nothingOld/E1-1.git (fetch)
 origin  git@github.com:nothingOld/E1-1.git (push)
 ```
+
+**SSH 방식으로 푸시 확인**
+```
+sevencvter4085@c6r9s8 E1-1 % git status
+sevencvter4085@c6r9s8 E1-1 % git add .
+sevencvter4085@c6r9s8 E1-1 % git commit -m "bonus5"
+sevencvter4085@c6r9s8 E1-1 % git push
+오브젝트 나열하는 중: 9, 완료.
+오브젝트 개수 세는 중: 100% (9/9), 완료.
+Delta compression using up to 6 threads
+오브젝트 압축하는 중: 100% (6/6), 완료.
+오브젝트 쓰는 중: 100% (6/6), 172.48 KiB | 1020.00 KiB/s, 완료.
+Total 6 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+To github.com:nothingOld/E1-1.git
+   b242980..18c2bd0  main -> main
+sevencvter4085@c6r9s8 E1-1 % git remote -v
+origin  git@github.com:nothingOld/E1-1.git (fetch)
+origin  git@github.com:nothingOld/E1-1.git (push)
+```
+
