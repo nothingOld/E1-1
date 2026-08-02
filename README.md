@@ -2096,7 +2096,13 @@ origin  git@github.com:nothingOld/E1-1.git (push)
 - 가장 어려웠던 문제: 가설 → 확인 → 조치
 - 이미지/컨테이너 정리 증거 보완
 - Git 기본 브랜치 설정 눌락
-- 
+- 트러블슈팅 1건 추가 필요
 
-
-
+추가 학습이 필요한 부분
+- 이미지의 불변 계층과 컨테이너의 쓰기 가능 계층
+- Docker 네트워크 격리와 포트 publish
+- named volume과 bind mount의 차이
+- 디렉터리에서 x 권한이 의미하는 것
+- macOS에서 lsof를 이용한 포트 점유 프로세스 진단
+- Git 인증 방식과 원격 전송 방식의 차이
+- .env, Git 이력, 스크린샷을 포함한 비밀정보 관리
