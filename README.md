@@ -24,6 +24,32 @@
 
 
 ---
+## 프로젝트 디렉터리 구조
+```
+E1-1/
+├── README.md
+├── mission1.md
+├── app/
+│   ├── Dockerfile
+│   ├── index.html
+│   └── default.conf
+├── docker-compose-basic/
+│   └── docker-compose.yml
+├── bonus2/
+│   └── docker-compose.yml
+├── bonus3/
+│   └── compose.yaml
+├── bonus4/
+│   ├── compose.yaml
+│   ├── default.conf.template
+│   └── .env.example
+└── image/
+    └── 실행 결과 스크린샷
+```
+- app/: 커스텀 Nginx 이미지 빌드에 필요한 파일을 함께 관리
+- bonus2~4/: 각 Compose 실습이 서로 영향을 주지 않도록 과제별로 분리
+- image/: README에서 사용하는 검증 이미지를 한곳에 관리
+- README.md: 실행 방법, 검증 결과, 문제 해결 과정을 기록
 
 
 ## 실행환경
