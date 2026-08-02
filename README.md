@@ -1656,10 +1656,214 @@ sevencvter4085@c6r9s8 bonus3 %
 - Dockerfile 또는 Compose에서 환경 변수를 주입해 서버 포트/모드를 바꿔본다.
 - 배움 포인트: 설정과 코드의 분리
 
+**실습 폴더 생성**
+```
+sevencvter4085@c6r9s8 E1-1 % mkdir bonus4
+sevencvter4085@c6r9s8 E1-1 % cd bonus4
+```
+
+**Nginx 설정 템플릿 작성**
+- `listen ${SERVER_PORT};`는 중요한 부분이다.
+    - Nginx가 사용할 내부 포트를 환경 변수로 받는다.
+- APP_MODE=${APP_MODE}
+    - 현재 실행 모드가 development인지 production인지 화면에서 확인할 수 있게한다.
+- **이 파일은 완성된 Nginx 설정 파일이 아니라 환경 변수가 들어갈 자리만 작성한 템플릿이다.**
+
+```
+sevencvter4085@c6r9s8 bonus4 % nano default.conf.template
+sevencvter4085@c6r9s8 bonus4 % cat default.conf.template 
+server {
+    listen ${SERVER_PORT};
+
+    location / {
+        default_type text/plain;
+        return 200 "Nginx Environment Variable Test\nSERVER_PORT=${SERVER_PORT}\nAPP_MODE=${APP_MODE}\n";
+    }
+}
+```
+
+**compose 파일 작성**
+- `"${HOST_PORT}:${SERVER_PORT}"`
+    - 포트 연결 형식은 `호스트 포트:컨테이너 포트`형식이다.
+    - 예를 들어 환경 변수가 `HOST_PORT=8083`, `SERVER_PORT=8000`과 같다면 실제 연결 포트는 `8083:8000`
+        - `8083`포트로 들어온 요청을 컨테이너 내부 Nginx의 `8000`포트로 전달한다.
+- `enviroment`
+    - `.env` 파일의 값을 컨테이너 내부로 전달
+- Nginx 템플릿 연결
+    - volumes: ./default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    - 현재 폴더의 템플릿을 Nginx 컨테이너 내부의 템플릿 위치에 연결
+    - 공식 Nginx 이미지는 컨테이너가 시작될 때 다음 값을 자동으로 치환
+        - ${SERVER_PORT}
+        - ${APP_MODE}
+```
+sevencvter4085@c6r9s8 bonus4 % nano compose.yaml
+sevencvter4085@c6r9s8 bonus4 % cat compose.yaml 
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "${HOST_PORT}:${SERVER_PORT}"
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      APP_MODE: ${APP_MODE}
+    volumes:
+      - ./default.conf.template:/etc/nginx/templates/default.conf.template:ro
+```
+
+**첫 번쨰 환경 변수 설정**
+```
+sevencvter4085@c6r9s8 bonus4 % nano .env
+sevencvter4085@c6r9s8 bonus4 % cat .env 
+HOST_PORT=8083
+SERVER_PORT=8000
+APP_MODE=development
+```
+
+| 환경 변수         |             값 | 의미               |
+| ------------- | ------------: | ---------------- |
+| `HOST_PORT`   |        `8083` | Mac에서 접속할 포트     |
+| `SERVER_PORT` |        `8000` | 컨테이너 내부 Nginx 포트 |
+| `APP_MODE`    | `development` | 개발 모드 표시         |
 
 
+**compose 설정 확인**
+```
+sevencvter4085@c6r9s8 bonus4 % docker compose config
+name: bonus4
+services:
+  web:
+    environment:
+      APP_MODE: development
+      SERVER_PORT: "8000"
+    image: nginx:alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8000
+        published: "8083"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /Users/sevencvter4085/Documents/E1-1/bonus4/default.conf.template
+        target: /etc/nginx/templates/default.conf.template
+        read_only: true
+        bind:
+          create_host_path: true
+networks:
+  default:
+    name: bonus4_default
+```
+
+**최초 실행 및 상태 확인**
+```
+sevencvter4085@c6r9s8 bonus4 % docker compose up -d
+[+] Running 2/2
+ ✔ Network bonus4_default  Created                                                                                                                                  0.1s 
+ ✔ Container bonus4-web-1  Started  
+sevencvter4085@c6r9s8 bonus4 %
+sevencvter4085@c6r9s8 bonus4 % docker compose ps
+NAME           IMAGE          COMMAND                   SERVICE   CREATED          STATUS          PORTS
+bonus4-web-1   nginx:alpine   "/docker-entrypoint.…"   web       20 seconds ago   Up 20 seconds   80/tcp, 0.0.0.0:8083->8000/tcp, [::]:8083->8000/tcp
+```
+
+**브라우저에서 접속**
+- http://localhost:8083
+![alt text](./image/bonus4-1.png)
+
+**터미널에서 확인**
+```
+sevencvter4085@c6r9s8 bonus4 % curl http://localhost:8083
+Nginx Environment Variable Test
+SERVER_PORT=8000
+APP_MODE=development
+```
+
+**로그확인**
+```
+sevencvter4085@c6r9s8 bonus4 % docker compose logs web
+web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+web-1  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+web-1  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+web-1  | 20-envsubst-on-templates.sh: Running envsubst on /etc/nginx/templates/default.conf.template to /etc/nginx/conf.d/default.conf
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+...
+web-1  | 192.168.107.1 - - [02/Aug/2026:13:23:08 +0000] "GET / HTTP/1.1" 200 70 "-" "curl/8.7.1" "-"
+web-1  | 192.168.107.1 - - [02/Aug/2026:13:23:17 +0000] "GET / HTTP/1.1" 200 70 "-" "curl/8.7.1" "-"
+```
+
+**환경 변수 변경**
+- `compose.yaml`과 Nginx 설정 템플릿을 수정하지 않고 `.env`만 변경합니다.
+```
+sevencvter4085@c6r9s8 bonus4 % nano .env
+sevencvter4085@c6r9s8 bonus4 % cat .env 
+HOST_PORT=8084
+SERVER_PORT=9000
+APP_MODE=production
+```
+
+| 구분          |         최초 실행 |         변경 후 |
+| ----------- | ------------: | -----------: |
+| 호스트 포트      |        `8083` |       `8084` |
+| Nginx 내부 포트 |        `8000` |       `9000` |
+| 실행 모드       | `development` | `production` |
 
 
-## 13) Github SSH키 설정
+**변경 사항 적용**
+- 실행 중인 컨테이너는 기존 환경 변수를 사용하고 있으므로 다시 생성해야 한다.
+```
+sevencvter4085@c6r9s8 bonus4 % docker compose down
+docker compose up -d
+[+] Running 2/2
+ ✔ Container bonus4-web-1  Removed                                                                                                                                  0.3s 
+ ✔ Network bonus4_default  Removed                                                                                                                                  0.1s 
+[+] Running 2/2
+ ✔ Network bonus4_default  Created                                                                                                                                  0.1s 
+ ✔ Container bonus4-web-1  Started 
+```
+
+**변경 결과 확인**
+```
+sevencvter4085@c6r9s8 bonus4 % docker compose ps
+NAME           IMAGE          COMMAND                   SERVICE   CREATED          STATUS          PORTS
+bonus4-web-1   nginx:alpine   "/docker-entrypoint.…"   web       25 seconds ago   Up 24 seconds   80/tcp, 0.0.0.0:8084->9000/tcp, [::]:8084->9000/tcp
+```
+
+![alt text](./image/bonus4-2.png)
+
+**변경된 `8084`포트로 접속**
+```
+sevencvter4085@c6r9s8 bonus4 % curl http://localhost:8084
+Nginx Environment Variable Test
+SERVER_PORT=9000
+APP_MODE=production
+```
+
+**배움 포인트**
+- 환경 변수를 사용하지 않으면 Nginx 설정에 포트를 직접 작성헤야 한다.
+    - listen 8000;
+- 실제 모드도 직접 작성해야 한다.
+    - return 200 "APP_MODE=development";
+    - 이 경우 운영 환경으로 바꿀 때 Nginx 설정 파일 자체를 수정해야한다.
+- 환경 변수를 사용하면 설정 파일은 그대로 유지할 수 있다.
+    - listen ${SERVER_PORT};
+    - APP_MODE=${APP_MODE}
+- 실제 값은 `.env`에서 바꾼다.
+    - SERVER_PORT=9000
+    - APP_MODE=production
+- 다음 파일은 변경하지 않는다.
+    - compose.yaml
+    - default.conf.template
+
+
+## 13) 보너스 과제 5
+- Github SSH키 설정
 - HTTPS 대신 SSH로 푸시가 가능하도록 키를 등록하고 동작을 확인한다.
 - 배움 포인트: 인증 방식 차이와 보안 습관
+
+
