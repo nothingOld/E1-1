@@ -1866,4 +1866,140 @@ APP_MODE=production
 - HTTPS 대신 SSH로 푸시가 가능하도록 키를 등록하고 동작을 확인한다.
 - 배움 포인트: 인증 방식 차이와 보안 습관
 
+**기존 SSH 키 확인**
+- 다음과 같은 파일이 있는지 확인
+    - ****: 개인 키
+    - i****.pub: 공개 키
+```
+sevencvter4085@c6r9s8 ~ % ls -al ~/.ssh
+total 8
+drwxr-xr-x   3 sevencvter4085  sevencvter4085   96  7 30 15:13 .
+drwxr-x---+ 23 sevencvter4085  sevencvter4085  736  8  2 21:55 ..
+-rw-r--r--   1 sevencvter4085  sevencvter4085  210  7 30 15:13 config
+```
 
+**SSH 키 생성**
+- GitHub 전용 SSH 키 생성
+```
+sevencvter4085@c6r9s8 ~ % ssh-keygen -t ed25519 -C "****@****.com" -f ~/.ssh/****_github
+Generating public/private ed25519 key pair.
+Enter passphrase for "/Users/sevencvter4085/.ssh/****_github" (empty for no passphrase): 
+```
+| 부분                         | 의미                |
+| -------------------------- | ----------------- |
+| `ssh-keygen`               | SSH 키를 생성하는 명령어   |
+| `-t ed25519`               | Ed25519 알고리즘 사용   |
+| `-C`                       | 키를 구분하기 위한 설명 추가  |
+| `-f`                       | 키 파일 이름과 저장 위치 지정 |
+| `~/.ssh/****_github` | 생성할 개인 키 파일       |
+
+**생성 결과 확인**
+- 다음과 같은 파일이 있는지 확인
+    - ****: 개인 키
+    - ****.pub: 공개 키
+```
+sevencvter4085@c6r9s8 ~ % ls -al ~/.ssh
+total 24
+drwxr-xr-x   5 sevencvter4085  sevencvter4085  160  8  2 22:40 .
+drwxr-x---+ 23 sevencvter4085  sevencvter4085  736  8  2 21:55 ..
+-rw-r--r--   1 sevencvter4085  sevencvter4085  210  7 30 15:13 config
+-rw-------   1 sevencvter4085  sevencvter4085  464  8  2 22:40 ****_github
+-rw-r--r--   1 sevencvter4085  sevencvter4085  102  8  2 22:40 ****_github.pub
+```
+
+**SSH 에이전트와 macOS 키체인 설정**
+- SSH 에이전트 실행
+- SSH 에이전트는 SSH 키를 관리하고 키 암호를 기억하는 역할을 한다.
+```
+sevencvter4085@c6r9s8 ~ % eval "$(ssh-agent -s)"
+Agent pid ****
+```
+
+**SSH 설정 파일 생성**
+```
+sevencvter4085@c6r9s8 ~ % cat ~/.ssh/config
+Host github.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ****
+```
+
+| 설정                   | 의미                  |
+| -------------------- | ------------------- |
+| `Host github.com`    | GitHub에 연결할 때 적용    |
+| `AddKeysToAgent yes` | SSH 키를 에이전트에 추가     |
+| `UseKeychain yes`    | 키 암호를 macOS 키체인에 저장 |
+| `IdentityFile`       | 사용할 개인 키 위치 지정      |
+
+
+**설정 파일 권한 지정**
+- 600은 파일 소유자만 읽고 쓸 수 있다는 의미
+```
+sevencvter4085@c6r9s8 ~ % chmod 600 ~/.ssh/config
+sevencvter4085@c6r9s8 ~ % chmod 600 ~/.ssh/****_github
+sevencvter4085@c6r9s8 ~ % ls -l ~/.ssh
+total 24
+-rw-------  1 sevencvter4085  sevencvter4085   95  8  2 22:43 config
+-rw-------  1 sevencvter4085  sevencvter4085  464  8  2 22:40 ****_github
+-rw-r--r--  1 sevencvter4085  sevencvter4085  102  8  2 22:40 ****_github.pub
+```
+
+**개인 키를 SSH 에이전트에 추가**
+```
+sevencvter4085@c6r9s8 ~ % ssh-add --apple-use-keychain ~/.ssh/****_github
+Enter passphrase for /Users/sevencvter4085/.ssh/****_github: 
+Identity added: /Users/sevencvter4085/.ssh/****_github (****@****.com)
+```
+
+**등록 여부 확인**
+```
+sevencvter4085@c6r9s8 ~ % ssh-add -l
+...
+```
+
+**공개 키를 GitHub에 등록**
+- GitHub에 로그인 → 프로필 사진 → Settings → SSH and GPG keys → New SSH key
+
+| 항목       | 입력값                |
+| -------- | ------------------ |
+| Title    | 장비를 구분할 수 있는 이름    |
+| Key type | Authentication Key |
+| Key      | 복사한 공개 키 전체        |
+
+**GitHub SSH 연결 확인**
+```
+sevencvter4085@c6r9s8 ~ % ssh -T git@github.com
+The authenticity of host 'github.com (****)' can't be established.
+**** key fingerprint is ****
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'github.com' (****) to the list of known hosts.
+Hi ****! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+**기존 저장소를 HTTPS에서 SSH로 변경**
+- 프로젝트 폴더로 이동 후 git 저장소 확인
+```
+sevencvter4085@c6r9s8 Documents % cd E1-1
+sevencvter4085@c6r9s8 Documents % cd E1-1
+sevencvter4085@c6r9s8 E1-1 % git status
+현재 브랜치 main
+...
+```
+
+**현재 원격 저장소 주소 확인**
+```
+sevencvter4085@c6r9s8 E1-1 % git remote -v
+```
+
+**GitHub에서 SSH 주소 확인**
+![alt text](./image/bonus5.png)
+
+**원격 주소 변경**
+- https에서 git@github.com으로 변경 확인
+```
+sevencvter4085@c6r9s8 E1-1 % git remote set-url origin git@github.com:nothingOld/E1-1.git
+sevencvter4085@c6r9s8 E1-1 % git remote -v
+origin  git@github.com:nothingOld/E1-1.git (fetch)
+origin  git@github.com:nothingOld/E1-1.git (push)
+```
