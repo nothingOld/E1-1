@@ -256,6 +256,10 @@ image		mission1.md	README.md	test_dir
 - 어디서든 clone해서 쓸 수 있어야 할 때 (이식성)
 - 팀 협업 프로젝트에서 내 로컬 경로를 하드코딩하면 안 될 때
 
+**절대/상대경로 요약**
+- 실행위치가 고정이면 `절대 경로`
+- 프로젝트가 이동해도 동작해야 하면 `상대 경로`
+
 ---
 
 
@@ -263,7 +267,7 @@ image		mission1.md	README.md	test_dir
 - 권한을 확인/변경하는 명령을 수행하고, 변경 전/후 비교를 기술 문서에 남긴다.
 - 최소 요구: 파일 1개, 디렉토리 1개에 대해 권한 변경 실험을 수행한다.
 
-- 소유자/그룹/기타 3자리
+- 소유자(owner)/그룹(group)/기타(ohers) 3자리
     - `r`=4, `w`=2, `x`=1, `-`=0
     - 권한을 3글자씩 나눠서 숫자로 변환
         - 1번째	1글자 파일 종류
@@ -271,6 +275,15 @@ image		mission1.md	README.md	test_dir
         - 5~7번째 3글자	그룹 권한
         - 8~10번째 3글자 기타 사용자 권한
     - `755` = `-rwxr-xr-x`, `644` = `-rw-r--r--`
+
+| 권한    |   이진수 | 8진수 | 의미          |
+| ----- | ----: | --: | ------------    |
+| `rwx` | `111` | `7` | 읽기 + 쓰기 + 실행 |
+| `rw-` | `110` | `6` | 읽기 + 쓰기       |
+| `r-x` | `101` | `5` | 읽기 + 실행       |
+| `r--` | `100` | `4` | 읽기만           |
+| `---` | `000` | `0` | 권한 없음         |
+
 
 파일 권한 실험
 ```
@@ -637,25 +650,368 @@ LOGO=ubuntu-logo
 - `attach`, `exec`는 `docker run`, `docker start`와 같이 컨테이너 시작 명령어가 아니다.
 - 둘다 컨테이너가 실행중일 때 쓰는 명령어이다.
     - 컨테이너 실행중인 상태에서
-        - docker attach → 실행중인 컨테이너 메인 프로세스에 연결
-        - docker exec → 실행중인 컨테이너에 새 명령 추가 실행
-- 쉽게 비유하면 `컨테이너` = 실행중인 프로그램 (예: 서버) / `attach` = 그 프로그램 창에 직접 들어가기 / `exec` = 그 프로그램 옆에서 별도 작업하기
-- attach를 쓰는 상황 2가지
-    1. 컨테이너 A → 컨테이너 B 왔다갔다(여러 컨테이너 사이 이동)
-    2. 컨테이너 살려두고 나왔다가 나중에 다시 그 컨테이너로 복귀(잠깐 자리 비우고 돌아오는 느낌)
-    - 핵심은 Ctrl + P, Q 로 나온 컨테이너에 다시 들어갈 때 쓰는 명령어
-    - 상대방이 1개든 여러개든 상관없이
-   - "살아있는 컨테이너에 재접속" 즉 컨테이너 안으로 들어가는 것이 본질이다.
-   
-- exec를 쓰는 상황
-
-```
-
-```
+        - `docker attach` → 실행중인 컨테이너 메인 프로세스에 연결
+        - `docker exec` → 실행중인 컨테이너에 새 명령 추가 실행
+- 쉽게 비유하면
+    - `컨테이너` = 실행중인 프로그램 (예: 서버)
+    - `attach` = 그 프로그램 창에 직접 들어가기
+    - `exec` = 그 프로그램 옆에서 별도 작업하기
 
 - attach / exec 명령어 구조 차이
     - attach
-        - 새로운 프로세스를 만드는게 아니라 이미 실행 중인 `/bin/bash`에 그냥 연결하는 것이다.
+        - 새로운 프로세스를 만드는게 아니라 이미 실행 중인 컨테이너에 연결하는 것이다.
+        - 연결할 컨테이너만 지정하면 된다.
+        - `docker attach 컨테이너명`
     - exec
-        - 컨테이너 안에서 새 명령어를 실행하는것인데 뭘 실행할지 반드시 시정해야 한다.
-    
+        - 실행 중인 컨테이너 안에서 새로운 명령어를 실행한다.
+        - 어떤 명령어를 실행할지 반드시 지정해야 한다.
+        - `docker exec 컨테이너명 실행할_명령어`
+
+- attach를 쓰는 상황 2가지
+    1. Ctrl + P, Ctrl + Q로 컨테이너에서 분리한 뒤 기존 화면에 다시 연결할 때
+    2. 실행 중인 컨테이너의 메인 프로세스 화면이나 출력을 직접 확인할 때
+    - 핵심은 실행 중인 컨테이너의 기존 메인 프로세스에 다시 연결하는 것이다.
+    - 컨테이너 A와 B 사이를 이동하는 전용 명령어는 아니다.
+    - 호스트 터미널에서 docker attach A, docker attach B처럼 각각 연결할 수 있다.
+    - Ctrl + P, Ctrl + Q로 나오면 컨테이너는 계속 실행된다.
+    - 메인 프로세스가 셸인 경우 exit를 입력하면 메인 셸이 종료되어 컨테이너도 종료될 수 있다.
+   
+- exec를 쓰는 상황
+    1. 컨테이너 안에 직접 들어가지 않고 명령어 하나만 실행할 때
+    2. 실행 중인 컨테이너 안에서 새로운 셸을 실행하여 내부에 들어갈 때
+    3. 기존 메인 프로세스에 영향을 주지 않고 점검이나 추가 작업을 할 때
+    - exec로 실행한 명령이 끝나도 기존 메인 프로세스는 계속 실행된다.
+    - exec로 실행한 셸에서 exit를 입력해도 해당 셸만 종료되고 컨테이너는 보통 계속 실행된다.
+
+- exec 사용법
+    - 컨테이너에 들어가지 않고 ls만 실행
+        - `docker exec B ls`
+    - B 컨테이너 안에서 새로운 셸을 실행하여 들어감
+        - `docker exec -it B /bin/sh`
+    - 이미 컨테이너 안에 들어가 있다면 docker exec를 사용하지 않고 명령어만 직접 입력한다.
+        - `ls`
+    - `/bin/sh`, `/bin/bash` 등 사용할 수 있는 셸은 이미지마다 다르다.
+
+| 옵션 / 인자 | 설명 |
+| :--- | :--- |
+| `-d` | 컨테이너를 백그라운드에서 실행 |
+| `-i` | 입력 가능한 상태 유지 |
+| `-t` | 터미널 환경 생성 |
+| `--name` | 컨테이너 이름 지정 |
+
+**최종정리**
+- attach → 실행 중인 컨테이너의 기존 메인 프로세스에 연결
+- exec → 실행 중인 컨테이너 안에서 새로운 명령어를 별도로 실행
+- attach는 나오는 방법에 따라 컨테이너가 종료될 수 있다.
+- exec는 실행한 명령이나 셸이 종료되어도 기존 컨테이너는 보통 계속 실행된다.
+```
+ # ubuntu 실행
+sevencvter4085@c6r9s8 ~ % docker run -it ubuntu /bin/bash
+root@50f085ca99ac:/# 
+
+ # 컨테이너를 종료하지 않고 호스트로
+#Ctrl + P Ctrl + Q
+
+# 실행중인 컨테이너 확인
+ # STATUS가 Up이면 정상
+sevencvter4085@c6r9s8 ~ % docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES
+50f085ca99ac   ubuntu    "/bin/bash"   51 seconds ago   Up 50 seconds             gifted_bouman
+
+  # attach 실습
+root@50f085ca99ac:/# docker attach 50f085ca99ac
+root@50f085ca99ac:/# 
+
+root@50f085ca99ac:/# echo "attach connected"
+attach connected
+root@50f085ca99ac:/# pwd
+/
+root@50f085ca99ac:/# hostname
+50f085ca99ac
+
+ # exit
+sevencvter4085@c6r9s8 ~ % docker attach 50f085ca99ac              
+root@50f085ca99ac:/# exit
+exit
+sevencvter4085@c6r9s8 ~ % docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS         PORTS     NAMES
+434e4fdcdf6a   ubuntu    "/bin/bash"   5 minutes ago   Up 5 minutes             trusting_chebyshev
+
+sevencvter4085@c6r9s8 ~ % docker ps -a 
+CONTAINER ID   IMAGE         COMMAND       CREATED          STATUS                     PORTS     NAMES
+50f085ca99ac   ubuntu        "/bin/bash"   15 minutes ago   Exited (0) 2 minutes ago             gifted_bouman
+434e4fdcdf6a   ubuntu        "/bin/bash"   8 minutes ago   Up 8 minutes                      trusting_chebyshev
+
+ # 컨테이너 삭제 
+sevencvter4085@c6r9s8 ~ % docker rm 50f085ca99ac
+50f085ca99ac
+sevencvter4085@c6r9s8 ~ % docker ps -a          
+CONTAINER ID   IMAGE         COMMAND       CREATED         STATUS                  PORTS     NAMES
+434e4fdcdf6a   ubuntu        "/bin/bash"   8 minutes ago   Up 8 minutes                      trusting_chebyshev
+
+```
+
+```
+ # exec 실습
+
+ # ubuntu 실행
+sevencvter4085@c6r9s8 ~ % docker run -it ubuntu /bin/bash
+root@434e4fdcdf6a:/# 
+
+ # 실행중인 컨테이너 확인
+sevencvter4085@c6r9s8 ~ % docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED              STATUS              PORTS     NAMES
+434e4fdcdf6a   ubuntu    "/bin/bash"   About a minute ago   Up About a minute             trusting_chebyshev
+
+ # exec로 ls 명령어 실행
+ # 해당 컨테이너에 직접 들어가지 않게 됨
+sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac ls /
+bin
+boot
+dev
+etc
+home
+lib
+lib64
+media
+mnt
+opt
+proc
+root
+run
+sbin
+srv
+sys
+tmp
+usr
+var
+sevencvter4085@c6r9s8 ~ % 
+
+ # exec를 이용해서 파일 생성 후 확인
+sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac touch /test.txt
+sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac ls /         
+bin
+boot
+dev
+etc
+home
+lib
+lib64
+media
+mnt
+opt
+proc
+root
+run
+sbin
+srv
+sys
+test.txt <<
+tmp
+usr
+var
+
+```
+
+## 6) Dockerfile 기반 커스텀 이미지 제작
+```
+ # index.html 생성 후 확인
+sevencvter4085@c6r9s8 app % nano index.html
+sevencvter4085@c6r9s8 app % ls
+index.html
+sevencvter4085@c6r9s8 app % cat index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Docker Web</title>
+</head>
+<body>
+    <h1>Hello Docker!</h1>
+    <p>This is my custom NGINX container.</p>
+</body>
+</html>
+```
+
+```
+ # nginx 설정 파일 만들기
+sevencvter4085@c6r9s8 app % nano default.conf
+sevencvter4085@c6r9s8 app % cat default.conf 
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    server_tokens off;
+
+    add_header X-Custom-Image "custom-nginx-v1" always;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /health {
+        access_log off;
+        default_type text/plain;
+        return 200 "healthy\n";
+    }
+}
+```
+
+```
+ # Dockerfile 생성 후 확인
+sevencvter4085@c6r9s8 app % nano Dockerfile
+sevencvter4085@c6r9s8 app % cat Dockerfile
+
+FROM nginx:alpine
+
+LABEL description="Custom NGINX image for Docker practice"
+
+COPY index.html /usr/share/nginx/html/index.html
+COPY default.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+```
+**Dockerfile 내부 명령어 해석**
+- `FROM nginx:alpine`
+    - 기존 nginx:alpine 이미지를 새 이미지의 기반으로 사용한다는 뜻이다.
+        - 기존 nginx:alpine + 내가 변경한 파일 = custom-nginx:v1
+    - `nginx:alpine`은 다음 두 요소가 결합된 이미지이다.
+        - NGINX 웹 서버
+        - Alpine Linux 기반의 경량 운영환경
+        - Docker에서는 `FROM`에 지정한 이미지가 베이스 이미지가 된다.
+        - Docker 공식 이미지는 문서화와 업데이트가 관리되는 기본 출발점으로 사용할 수 있다.
+
+- `LABEL`
+    - LABEL description="Custom NGINX image for Docker practice"
+    - 이미지에 설명 정보를 추가한다.
+    - 이미지를 실행하는 명령은 아니고, 이미지의 메타데이터를 기록하는 용도이다.
+
+- `COPY`
+    - COPY index.html `/usr/share/nginx/html/index.html`
+    - 현재 Mac에 있는 index.html을 이미지 내부의 다음 위치로 복사
+    - 이 위치는 NGINX가 기본 정적 웹페이지를 제공하는 경로
+
+- 'EXPOSE'
+    - `EXPOSE 80`
+    - 이 컨테이너가 내부적으로 80번 포트를 사용한다는 정보를 기록
+    - 주의할 점은 EXPOSE 80만 작성한다고 Mac의 8080번 포트와 자동으로 연결되지는 않는다는 것이다.
+    - 실제 포트 연결은 컨테이너 실행 시 다음 옵션으로 설정한다.
+        - `-p 8080:80`
+
+
+```
+ # 커스텀 이미지 빌드
+sevencvter4085@c6r9s8 app % docker build -t custom-nginx:v1 .             
+[+] Building 6.6s (7/7) FINISHED                                docker:orbstack
+ => [internal] load build definition from Dockerfile                       0.2s
+ => => transferring dockerfile: 179B                                       0.0s
+ => [internal] load metadata for docker.io/library/nginx:alpine            2.5s
+ => [internal] load .dockerignore                                          0.1s
+ => => transferring context: 2B                                            0.0s
+ => [internal] load build context                                          0.2s
+ => => transferring context: 206B                                          0.0s
+ ...
+ => => naming to docker.io/library/custom-nginx:v1                         0.0s
+```
+
+- `docker` > docker 명령
+- `build` > 이미지 이름과 태그 지정
+- `-t` > 이미지 이름: custom-nginx
+- `custom-nginx:v1` > 태그:v1
+- `.` > 빌드 컨텍스트: 현재 폴더
+    - 마지막의 `.`은 생략하면 안된다.
+
+```
+ # 이미지 생성 확인
+sevencvter4085@c6r9s8 app % docker images
+REPOSITORY     TAG       IMAGE ID       CREATED         SIZE
+custom-nginx   v1        cb1b2d4f8faf   3 minutes ago   62.4MB <<
+nginx          latest    4e5db4761e0f   2 weeks ago     161MB
+ubuntu         latest    de7345b16e94   2 weeks ago     100MB
+hello-world    latest    e2ac70e7319a   4 months ago    10.1kB
+```
+
+```
+ # 커스텀 컨테이너 실행 후 상태 확인
+docker run -d --name custom-nginx-container -p 8080:80 custom-nginx:v1
+sevencvter4085@c6r9s8 app % docker ps
+CONTAINER ID   IMAGE             COMMAND                   CREATED          STATUS          PORTS                                     NAMES
+fe4a1fa1dcc4   custom-nginx:v1   "/docker-entrypoint.…"   2 minutes ago    Up 2 minutes    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   custom-nginx-container
+434e4fdcdf6a   ubuntu            "/bin/bash"               41 minutes ago   Up 41 minutes                                             trusting_chebyshev
+```
+
+| 구성                              | 의미                       |
+| ------------------------------- | ------------------------ |
+| `docker run`                    | 이미지로 컨테이너를 생성하고 실행       |
+| `-d`                            | 백그라운드 실행                 |
+| `--name custom-nginx-container` | 컨테이너 이름 지정               |
+| `-p 8080:80`                    | Mac의 8080번과 컨테이너의 80번 연결 |
+| `custom-nginx:v1`               | 실행할 커스텀 이미지              |
+
+- 포트 매핑은 다음처럼 이해하면 된다.
+    - 브라우저 localhost:8080 > Mac의 8080번 포트 > 컨테이너의 80번 포트 > NGINX
+
+
+```
+ # 터미널에서 웹페이지 확인
+sevencvter4085@c6r9s8 app % curl http://localhost:8080
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Docker Web</title>
+</head>
+<body>
+    <h1>Hello Docker!</h1>
+    <p>This is my custom NGINX container.</p>
+</body>
+</html>
+
+ # 응답 헤더 및 헬스체크
+sevencvter4085@c6r9s8 app % curl -i http://localhost:8080/health
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sun, 02 Aug 2026 08:03:31 GMT
+Content-Type: text/plain
+Content-Length: 8
+Connection: keep-alive
+X-Custom-Image: custom-nginx-v1
+
+healthy
+```
+
+
+## 7) Docker 볼륨 영속성 검증
+- 컨테이너를 삭제해도 데이터가 유지되는지 확인하는 과정이다.
+
+```
+ # volume 생성
+
+```
+
+```
+ # 컨테이너에 연결
+```
+
+```
+ # 컨컨테이너 삭제 전/후로 데이터를 확인하여 데이터가 유지됨을 증명
+```
+
+```
+ # 컨컨테이너 삭제 전/후로 데이터를 확인하여 데이터가 유지됨을 증명
+```
+
+
+## 8) Git 설정 및 GitHub 연동
+
+```
+ # Git 사용자 정보/기본 브랜치 설정을 완료하고 git config --list 결과를 기록
+```
+
+```
+ # GitHub 로그인 및 저장소 연동을 완료하고, 연동 증거(스크린샷 등)를 기술 문서에 첨부
+```
+
+
+## 9) 보너스 과제
