@@ -27,28 +27,37 @@
 ## 프로젝트 디렉터리 구조
 ```
 E1-1/
-├── README.md
-├── mission1.md
 ├── app/
 │   ├── Dockerfile
 │   ├── index.html
 │   └── default.conf
-├── docker-compose-basic/
+├── bonus1/
 │   └── docker-compose.yml
 ├── bonus2/
-│   └── docker-compose.yml
-├── bonus3/
 │   └── compose.yaml
+├── bonus3/
+│   ├── compose.yaml
+│   ├── default.conf.template
+│   └── .env.example
 ├── bonus4/
 │   ├── compose.yaml
 │   ├── default.conf.template
 │   └── .env.example
-└── image/
-    └── 실행 결과 스크린샷
+├── bonus5/
+│   ├── compose.yaml
+│   ├── default.conf.template
+│   └── .env.example
+├── image/
+│   └── 실행 결과 스크린샷
+├── test_dir/
+├── .gitignore
+├── README.md
+└── mission1.md
 ```
 - app/: 커스텀 Nginx 이미지 빌드에 필요한 파일을 함께 관리
-- bonus2~4/: 각 Compose 실습이 서로 영향을 주지 않도록 과제별로 분리
+- bonus1~5/: 각 실습이 서로 영향을 주지 않도록 과제별로 분리
 - image/: README에서 사용하는 검증 이미지를 한곳에 관리
+- test_dir/: 명령어 실습용
 - README.md: 실행 방법, 검증 결과, 문제 해결 과정을 기록
 
 
@@ -182,7 +191,7 @@ sevencvter4085@c6r5s6 E1-1 % pwd
         - `d` (Directory): 디렉토리 (폴더)
         - `-` (Regular File): 일반 파일 (텍스트, 이미지 등)
         - `l` (Link): 심볼릭 링크 (Mac의 '가상본/바로가기')
-        - `x`(eXecute)가 들어있으면 실행 가능한 프로그램/스크립트
+        - 그 뒤의 9개 문자는 소유자, 그룹, 기타 사용자의 r/w/x 권한을 나타낸다.
 
 - `-al`: 숨김 파일을 포함한 모든 파일의 상세 정보를 출력
     - `-a`와 `-l` 옵션을 합친 형태입니다.
@@ -226,7 +235,7 @@ sevencvter4085@c6r5s6 E1-1 % cd test_dir
 
 5). 빈 파일 생성
 ```
-sevencvter4085@c6r5s6 E1-1 test_dir % touch empty.text
+sevencvter4085@c6r5s6 E1-1 test_dir % touch empty.txt
 sevencvter4085@c6r8s8 test_dir % ls
 empyt.txt
 ```
@@ -326,6 +335,10 @@ drwxr-xr-x  2 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
 sevencvter4085@c6r5s6 E1-1 % chmod 644 test_dir
 sevencvter4085@c6r5s6 E1-1 % ls -ld test_dir   
 drw-r--r--  2 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
+
+//TODO: 권한 복구 작성 필요
+chmod 755 test_dir
+ls -ld test_dir
 ```
 
 
@@ -415,6 +428,17 @@ Cannot connect to the Docker daemon at unix:**** Is the docker daemon running?
     - 이미지로부터 만들어지고 실행/중지/삭제 가능
     - 이미지의 환경이 내 컴퓨터에서 독립된 공간으로 작동
     - 같은 이미지로 여러 개를 만들 수 있고 서로 격리
+
+** 이미지와 컨테이너의 차이**
+| 구분 | 내용 |
+| :--- | :--- |
+| **빌드** | Dockerfile을 `docker build`로 처리하면 **이미지**가 만들어진다. |
+| **실행** | `docker run`은 이미지를 기반으로 **새로운 컨테이너**를 생성하고 실행한다. |
+| **변경** | 실행 중인 컨테이너에서 생성하거나 수정한 파일은 컨테이너의 **쓰기 가능 계층**에 저장된다. |
+| **중요한 차이** | 컨테이너 안의 변경 사항은 원본 이미지를 수정하지 않으며, 동일한 이미지로 새 컨테이너를 만들면 이전 컨테이너의 변경 사항은 **자동으로 포함되지 않는다**. |
+| **변경 사항 재현** | Dockerfile이나 빌드 파일을 수정한 후 **이미지를 다시 빌드**해야 한다. |
+| **데이터 유지** | 컨테이너 쓰기 계층이 아니라 **볼륨(Volume) 또는 bind mount**에 저장해야 한다. |
+
 
 **파이썬 venv와 Docker 차이**
 | 파이썬 가상환경 (`venv`) | 개념 / 설명 | 도커 (`Docker`) |
@@ -762,6 +786,7 @@ CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS   
 
 **attach 실습**
 ```
+//TODO: docker attach는 일반적으로 컨테이너 안이 아니라 호스트 터미널에서 실행
 root@50f085ca99ac:/# docker attach 50f085ca99ac
 root@50f085ca99ac:/# 
 
@@ -815,6 +840,7 @@ CONTAINER ID   IMAGE     COMMAND       CREATED              STATUS              
 **exec로 ls 명령어 실행**
 **해당 컨테이너에 직접 들어가지 않게 됨**
 ```
+//TODO: 삭제한 컨테이너IDfh exec 실행??
 sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac ls /
 bin
 boot
@@ -1005,6 +1031,18 @@ fe4a1fa1dcc4   custom-nginx:v1   "/docker-entrypoint.…"   2 minutes ago    Up 
 - 포트 매핑은 다음처럼 이해하면 된다.
     - 브라우저 localhost:8080 > Mac의 8080번 포트 > 컨테이너의 80번 포트 > NGINX
 
+**왜 포트 매핑이 필요한가?**
+컨테이너는 호스트와 분리된 네트워크 공간에서 실행된다. 따라서
+컨테이너의 80번 포트를 사용한다고 해서 Mac의 80번 또는 8080번 포트가
+자동으로 열리는 것은 아니다.  
+
+호스트의 브라우저에서 컨테이너 서비스에 접근하려면 -p 8080:80처럼
+호스트 포트와 컨테이너 포트를 연결해야 한다.  
+
+다만 같은 Docker 네트워크에 있는 다른 컨테이너는 호스트 포트 매핑 없이
+서비스 이름과 컨테이너 포트로 접근할 수 있다.  
+예: http://web:80  
+
 **브라우저 접속 화면**
 ![alt text](./image/custom_image.png)
 
@@ -1069,6 +1107,7 @@ vol-test
 sevencvter4085@c6r9s8 E1-1 % docker run --rm -v my-data:/app-data ubuntu cat /app-data/log.txt
 preserved
 
+//TODO: vol-test 를 삭제 했는데 생성과정 없는 volume-test-2
 sevencvter4085@c6r9s8 E1-1 % docker ps -a
 CONTAINER ID   IMAGE     COMMAND               CREATED         STATUS         PORTS     NAMES
 cf049ee3fc71   ubuntu    "tail -f /dev/null"   7 minutes ago   Up 7 minutes             volume-test-2
@@ -1115,6 +1154,7 @@ sevencvter4085@c6r9s8 E1-1 %
 **GitHub 로그인 및 저장소 연동을 완료하고, 연동 증거(스크린샷 등)를 기술 문서에 첨부**
 **Github 로그인 brew로 설치가 안됨**
 ```
+//TODO: 아래의 명령어 실행 후 에러 남기기 -> 트러블 슈팅
 sevencvter4085@c6r9s8 E1-1 % gh auth login
 sevencvter4085@c6r9s8 E1-1 % gh auth setup-git
 sevencvter4085@c6r9s8 E1-1 % gh auth status
@@ -1327,10 +1367,10 @@ evencvter4085@c6r9s8 docker-compose-baisc % docker compose logs -f web
 web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
 ...
 web-1  | 2026/08/02 12:01:43 [notice] 1#1: start worker process 35
-web-1  | 2026/08/02 12:05:13 [error] 30#30: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.97.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8081", referrer: "http://localhost:8081/"
-web-1  | 192.168.97.1 - - [02/Aug/2026:12:05:13 +0000] "GET / HTTP/1.1" 200 896 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+web-1  | 2026/08/02 12:05:13 [error] 30#30: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: ***.***.***.***, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8081", referrer: "http://localhost:8081/"
+web-1  | ***.***.***.*** - - [02/Aug/2026:12:05:13 +0000] "GET / HTTP/1.1" 200 896 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
 ...
-web-1  | 192.168.97.1 - - [02/Aug/2026:12:09:54 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+web-1  | ***.***.***.*** - - [02/Aug/2026:12:09:54 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
 ```
 
 **컨테이너 중지/삭제**
@@ -1632,9 +1672,9 @@ bonus3-web-1   nginx:alpine   "/docker-entrypoint.…"   web       2 minutes ago
 sevencvter4085@c6r9s8 bonus3 % docker compose logs
 web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
 ...
-web-1  | 2026/08/02 12:46:08 [error] 31#31: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.107.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8083", referrer: "http://localhost:8083/"
-web-1  | 192.168.107.1 - - [02/Aug/2026:12:46:08 +0000] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost:8083/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
-web-1  | 192.168.107.1 - - [02/Aug/2026:12:46:09 +0000] "GET / HTTP/1.1" 200 896 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+web-1  | 2026/08/02 12:46:08 [error] 31#31: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: ***.***.***.***, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8083", referrer: "http://localhost:8083/"
+web-1  | ***.***.***.*** - - [02/Aug/2026:12:46:08 +0000] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost:8083/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
+web-1  | ***.***.***.*** - - [02/Aug/2026:12:46:09 +0000] "GET / HTTP/1.1" 200 896 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" "-"
 ```
 
 **서비스 종료 및 삭제 - `down`**
@@ -1819,8 +1859,8 @@ web-1  | 20-envsubst-on-templates.sh: Running envsubst on /etc/nginx/templates/d
 web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
 web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
 ...
-web-1  | 192.168.107.1 - - [02/Aug/2026:13:23:08 +0000] "GET / HTTP/1.1" 200 70 "-" "curl/8.7.1" "-"
-web-1  | 192.168.107.1 - - [02/Aug/2026:13:23:17 +0000] "GET / HTTP/1.1" 200 70 "-" "curl/8.7.1" "-"
+web-1  | ***.***.***.*** - - [02/Aug/2026:13:23:08 +0000] "GET / HTTP/1.1" 200 70 "-" "curl/8.7.1" "-"
+web-1  | ***.***.***.*** - - [02/Aug/2026:13:23:17 +0000] "GET / HTTP/1.1" 200 70 "-" "curl/8.7.1" "-"
 ```
 
 **환경 변수 변경**
@@ -2049,4 +2089,14 @@ sevencvter4085@c6r9s8 E1-1 % git remote -v
 origin  git@github.com:nothingOld/E1-1.git (fetch)
 origin  git@github.com:nothingOld/E1-1.git (push)
 ```
+
+//TODO:
+- 호스트 포트 충돌 진단 순서
+- 데이터가 사라지는 상황과 방지 대안
+- 가장 어려웠던 문제: 가설 → 확인 → 조치
+- 이미지/컨테이너 정리 증거 보완
+- Git 기본 브랜치 설정 눌락
+- 
+
+
 
