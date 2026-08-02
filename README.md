@@ -472,7 +472,7 @@ sevencvter4085@c6r9s8 E1-1 % docker pull hello-world
 Using default tag: latest
 latest: Pulling from library/hello-world
 4f55086f7dd0: Pull complete 
-Digest: sha256:c3cbe1cc1aa588a64951ac6286e0df7b27fe2e6324b1001c619bb358770c0178
+...
 Status: Downloaded newer image for hello-world:latest
 docker.io/library/hello-world:latest
 ```
@@ -606,7 +606,7 @@ Using default tag: latest
 latest: Pulling from library/ubuntu
 ed819469700f: Pull complete 
 a3679419df18: Pull complete 
-Digest: sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb
+...
 Status: Downloaded newer image for ubuntu:latest
 docker.io/library/ubuntu:latest
 ```
