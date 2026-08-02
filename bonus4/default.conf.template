@@ -1,0 +1,8 @@
+server {
+    listen ${SERVER_PORT};
+
+    location / {
+        default_type text/plain;
+        return 200 "Nginx Environment Variable Test\nSERVER_PORT=${SERVER_PORT}\nAPP_MODE=${APP_MODE}\n";
+    }
+}
