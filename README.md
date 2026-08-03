@@ -232,7 +232,7 @@ sevencvter4085@c6r5s6 E1-1 % cd test_dir
 ```
 sevencvter4085@c6r5s6 E1-1 test_dir % touch empty.txt
 sevencvter4085@c6r8s8 test_dir % ls
-empyt.txt
+empty.txt
 ```
 
 6). 파일 내용 작성
@@ -250,18 +250,18 @@ hello
 ```
 sevencvter4085@c6r8s8 test_dir % cp file.txt copy.txt
 sevencvter4085@c6r8s8 test_dir % ls
-copy.txt	empyt.txt	file.txt
+copy.txt	empty.txt	file.txt
 ```
 
 9). 파일명 변경 및 이동
 ```
 sevencvter4085@c6r8s8 test_dir % mv copy.txt renamed.txt
 sevencvter4085@c6r8s8 test_dir % ls
-empyt.txt	file.txt	renamed.txt
+empty.txt	file.txt	renamed.txt
 
 sevencvter4085@c6r8s8 test_dir % mv file.txt ../      
 sevencvter4085@c6r8s8 test_dir % ls
-empyt.txt	renamed.txt
+empty.txt	renamed.txt
 
 sevencvter4085@c6r8s8 test_dir % 
 sevencvter4085@c6r8s8 test_dir % cd ..
@@ -296,7 +296,7 @@ image		mission1.md	README.md	test_dir
 - 권한을 확인/변경하는 명령을 수행하고, 변경 전/후 비교를 기술 문서에 남긴다.
 - 최소 요구: 파일 1개, 디렉토리 1개에 대해 권한 변경 실험을 수행한다.
 
-- 소유자(owner)/그룹(group)/기타(ohers) 3자리
+- 소유자(owner)/그룹(group)/기타(others) 3자리
     - `r`=4, `w`=2, `x`=1, `-`=0
     - 권한을 3글자씩 나눠서 숫자로 변환
         - 1번째	1글자 파일 종류
@@ -351,14 +351,14 @@ drwxr-xr-x  4 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
 **도커 버전**
 - OrbStack을 사용하기에 다음 상태여야 한다.
 - OrbStack 실행 → Docker Engine 실행 → docker info 성공
-- Sever 부분이 나오면 데몬이 살아있다는 증거이다.
+- Server 부분이 나오면 데몬이 살아있다는 증거이다.
 ```
 sevencvter4085@c6r5s6 ~ % docker --version
 Docker version 28.5.2, build ecc6942
 ```
 
 **상세버전**
-- Sever 부분이 나오면 데몬이 살아있다는 증거이다.
+- Server 부분이 나오면 데몬이 살아있다는 증거이다.
 - 맨 아래 `WARNING`은 Docker가 기본적으로 사용하는 `iptables`리리눅스 방화벽 기능이 비활성화되어 있어서 발생한다. 컨테이너에 중요한 정보가 없고 외부망에 노출된 환경도 아니므로 무시했다.
 
 
@@ -684,7 +684,7 @@ root@ea9cb3a4cc37:/# echo "hello ubuntu"
 hello ubuntu
 ```
 
-**운영제체 정보 확인**
+**운영체제 정보 확인**
 ```
 root@ea9cb3a4cc37:/# cat /etc/os-release
 PRETTY_NAME="Ubuntu 26.04 LTS"
@@ -1337,9 +1337,9 @@ Docker Compose version v2.40.3
 
 **실습을 위한 폴더 생성 및 빈 폴더 확인**
 ```
-sevencvter4085@c6r9s8 E1-1 % mkdir docker-compose-baisc
-sevencvter4085@c6r9s8 E1-1 % cd docker-compose-baisc 
-sevencvter4085@c6r9s8 docker-compose-baisc % ls -la
+sevencvter4085@c6r9s8 E1-1 % mkdir docker-compose-basic
+sevencvter4085@c6r9s8 E1-1 % cd docker-compose-basic 
+sevencvter4085@c6r9s8 docker-compose-basic % ls -la
 total 0
 drwxr-xr-x   2 sevencvter4085  sevencvter4085   64  8  2 20:48 .
 drwxr-xr-x  11 sevencvter4085  sevencvter4085  352  8  2 20:48 ..
@@ -1347,8 +1347,8 @@ drwxr-xr-x  11 sevencvter4085  sevencvter4085  352  8  2 20:48 ..
 
 **docker-compose.yml 작성 및 확인**
 ```
-sevencvter4085@c6r9s8 docker-compose-baisc % nano docker-compose.yml
-sevencvter4085@c6r9s8 docker-compose-baisc % cat docker-compose.yml 
+sevencvter4085@c6r9s8 docker-compose-basic % nano docker-compose.yml
+sevencvter4085@c6r9s8 docker-compose-basic % cat docker-compose.yml 
 services:
   web:
     image: nginx:alpine
@@ -1361,8 +1361,8 @@ services:
 - Compose가 짧은 설정을 실제 적용할 전체 설정 형태로 변환해서 보여주는 것이다.
 - 문법 오류가 있으면 `docker compose config` 단계에서 먼저 수정해야 한다.
 ```
-sevencvter4085@c6r9s8 docker-compose-baisc % docker compose config
-name: docker-compose-baisc
+sevencvter4085@c6r9s8 docker-compose-basic % docker compose config
+name: docker-compose-basic
 services:
   web:
     image: nginx:alpine
@@ -1394,7 +1394,7 @@ networks:
     - 기존 `docker run nginx:alpine`과 같음
 - `ports`
     - 호스트와 컨테이너의 포트를 연결
-    - 호스트 포트(8081):컨테이터 포트(80)
+    - 호스트 포트(8081):컨테이너 포트(80)
     - 따라서 브라우저에서 `http://localhost:8081`로 접속
     - 접속 흐름은 웹 브라우저 > Mac의 8081포트 > Nginx 컨테이너의 80번 포트
     - `ports`는 호스트와 컨테이너 간 포트 매핑을 정의합니다.
@@ -1413,16 +1413,16 @@ services:
 ```
 
 **단일 서비스 실행**
-- `up`: Coompose 파일에 정의된 서비스를 생성하고 실행
+- `up`: Compose 파일에 정의된 서비스를 생성하고 실행
 - `-d`: 백그라운드 실행
 ```
-sevencvter4085@c6r9s8 docker-compose-baisc % docker compose up -d
+sevencvter4085@c6r9s8 docker-compose-basic % docker compose up -d
 [+] Running 9/9
  ✔ web Pulled 3.9s 
    ...
 [+] Running 2/2
- ✔ Network docker-compose-baisc_default  Created 0.1s 
- ✔ Container docker-compose-baisc-web-1  Started 0.5s    
+ ✔ Network docker-compose-basic_default  Created 0.1s 
+ ✔ Container docker-compose-basic-web-1  Started 0.5s    
 ```
 - 마지막 2둘의 의미는 다음과 같다.
     - Compose 프로젝트용 네트워크 생성
@@ -1431,9 +1431,9 @@ sevencvter4085@c6r9s8 docker-compose-baisc % docker compose up -d
 
 **실행 상태 확인**
 ```
-sevencvter4085@c6r9s8 docker-compose-baisc % docker compose ps
+sevencvter4085@c6r9s8 docker-compose-basic % docker compose ps
 NAME                         IMAGE          COMMAND                   SERVICE   CREATED         STATUS         PORTS
-docker-compose-baisc-web-1   nginx:alpine   "/docker-entrypoint.…"   web       2 minutes ago   Up 2 minutes   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
+docker-compose-basic-web-1   nginx:alpine   "/docker-entrypoint.…"   web       2 minutes ago   Up 2 minutes   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
 ```
 **중요하게 확인 할 항목**
 
@@ -1445,14 +1445,14 @@ docker-compose-baisc-web-1   nginx:alpine   "/docker-entrypoint.…"   web      
 | `STATUS`  | 실행 상태           |
 | `PORTS`   | 호스트와 컨테이너 포트 연결 |
 
-**브라우저를 통힌 Nginx 접속 확인**
+**브라우저를 통한 Nginx 접속 확인**
 - 브라우저에 다음 주소를 입력
     - `http://localhost:8081`
 ![alt text](./image/bonus1.png)
 
 **터미널을 통한 Nginx 접속 확인**
 ```
-sevencvter4085@c6r9s8 docker-compose-baisc % curl http://localhost:8081
+sevencvter4085@c6r9s8 docker-compose-basic % curl http://localhost:8081
 <!DOCTYPE html>
 <html>
 <head>
@@ -1487,7 +1487,7 @@ security features and capabilities please refer to
 - `docker compose logs web` > web 서비스만 확인
 - `docker compose logs -f web` > 실시간 확인
 ```
-evencvter4085@c6r9s8 docker-compose-baisc % docker compose logs -f web
+evencvter4085@c6r9s8 docker-compose-basic % docker compose logs -f web
 web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
 ...
 web-1  | 2026/08/02 12:01:43 [notice] 1#1: start worker process 35
@@ -1499,16 +1499,16 @@ web-1  | ***.***.***.*** - - [02/Aug/2026:12:09:54 +0000] "GET / HTTP/1.1" 304 0
 
 **컨테이너 중지/삭제**
 ```
-sevencvter4085@c6r9s8 docker-compose-baisc % docker compose ps -a 
+sevencvter4085@c6r9s8 docker-compose-basic % docker compose ps -a 
 NAME                         IMAGE          COMMAND                   SERVICE   CREATED         STATUS                     PORTS
-docker-compose-baisc-web-1   nginx:alpine   "/docker-entrypoint.…"   web       9 minutes ago   Exited (0) 6 seconds ago   
-sevencvter4085@c6r9s8 docker-compose-baisc % docker compose down
+docker-compose-basic-web-1   nginx:alpine   "/docker-entrypoint.…"   web       9 minutes ago   Exited (0) 6 seconds ago   
+sevencvter4085@c6r9s8 docker-compose-basic % docker compose down
 [+] Running 2/2
- ✔ Container docker-compose-baisc-web-1  Removed                                                                         0.0s 
- ✔ Network docker-compose-baisc_default  Removed                                                                         0.1s 
-sevencvter4085@c6r9s8 docker-compose-baisc % docker compose ps -a
+ ✔ Container docker-compose-basic-web-1  Removed                                                                         0.0s 
+ ✔ Network docker-compose-basic_default  Removed                                                                         0.1s 
+sevencvter4085@c6r9s8 docker-compose-basic % docker compose ps -a
 NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
-sevencvter4085@c6r9s8 docker-compose-baisc % 
+sevencvter4085@c6r9s8 docker-compose-basic % 
 ```
 
 **배움 포인트**
@@ -1752,7 +1752,7 @@ services:
 ```
 
 **컨테이너 실행 - `up`**
-- `up`: Coompose 파일에 정의된 서비스를 생성하고 실행
+- `up`: Compose 파일에 정의된 서비스를 생성하고 실행
 - `-d`: 백그라운드 실행
 ```
 sevencvter4085@c6r9s8 bonus3 % docker compose up -d
@@ -1900,7 +1900,7 @@ services:
       - ./default.conf.template:/etc/nginx/templates/default.conf.template:ro
 ```
 
-**첫 번쨰 환경 변수 설정**
+**첫 번째 환경 변수 설정**
 ```
 sevencvter4085@c6r9s8 bonus4 % nano .env
 sevencvter4085@c6r9s8 bonus4 % cat .env 
