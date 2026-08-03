@@ -515,7 +515,6 @@ Cannot connect to the Docker daemon at unix:**** Is the docker daemon running?
     4) 컨테이너 이름을 my-web으로 지정한다.
     5) Nginx를 백그라운드에서 실행한다.
 
-//TODO: 트러블 슈팅
 5. 주의할 점
     - 같은 이름의 컨테이너가 이미 존재한다면 다음과 같은 충돌 오류가 발생한다.
         - The container name "/my-web" is already in use
@@ -1120,7 +1119,7 @@ X-Custom-Image: custom-nginx-v1
 healthy
 ```
 
-**포트 매핑 트러블 슈팅**
+**포트 매핑 트러블슈팅**
 **실습 환경 준비**
 ```
 sevencvter4085@c6r9s8 E1-1 % docker run -d --name port-conflict -p 8080:80 nginx:alpine 
@@ -1333,9 +1332,8 @@ sevencvter4085@c6r9s8 E1-1 %
 ```
 
 **GitHub 로그인 및 저장소 연동을 완료하고, 연동 증거(스크린샷 등)를 기술 문서에 첨부**
-**Github 로그인 brew로 설치가 안됨**
+**Github 로그인 brew로 설치가 안됨(트러블슈팅)**
 ```
-//TODO: 트러블 슈팅
 sevencvter4085@c6r9s8 E1-1 % gh auth login
 zsh: command not found: gh
 
@@ -2276,15 +2274,3 @@ sevencvter4085@c6r9s8 E1-1 % git remote -v
 origin  git@github.com:nothingOld/E1-1.git (fetch)
 origin  git@github.com:nothingOld/E1-1.git (push)
 ```
-
-//TODO:
-- 가장 어려웠던 문제: 가설 → 확인 → 조치
-
-추가 학습이 필요한 부분
-- 이미지의 불변 계층과 컨테이너의 쓰기 가능 계층
-- Docker 네트워크 격리와 포트 publish
-- named volume과 bind mount의 차이
-- 디렉터리에서 x 권한이 의미하는 것
-- macOS에서 lsof를 이용한 포트 점유 프로세스 진단
-- Git 인증 방식과 원격 전송 방식의 차이
-- .env, Git 이력, 스크린샷을 포함한 비밀정보 관리
