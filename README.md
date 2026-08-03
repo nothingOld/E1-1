@@ -38,7 +38,7 @@ E1-1/
 ├── bonus3/
 │   └── compose.yaml
 ├── bonus4/
-│   ├── .env.example
+│   ├── .env
 │   ├── compose.yaml
 │   └── default.conf.template
 ├── image/
@@ -79,7 +79,7 @@ Apple_Terminal
 
 **도커 버전**
 - OrbStack을 사용하기에 다음 상태여야 한다.
-- OrbStack 실행 → Docker Engine 실행 → docker info 성공
+- OrbStack 실행 → Docker Engine 실행 → docker --version
 ```
 sevencvter4085@c6r5s6 ~ % docker --version
 Docker version 28.5.2, build ecc6942
@@ -114,7 +114,36 @@ Server: Docker Engine - Community  # Server(데몬) 버전
  docker-init:
   Version:          0.19.0
   GitCommit:        de40ad0
+```
 
+```
+sevencvter4085@c6r9s8 test_dir % docker info
+Client:
+ Version:    28.5.2
+ Context:    orbstack
+ Debug Mode: false
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.29.1
+    Path:     /Users/sevencvter4085/.docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.40.3
+    Path:     /Users/sevencvter4085/.docker/cli-plugins/docker-compose
+
+Server:
+ Containers: 3
+  Running: 2
+  Paused: 0
+  Stopped: 1
+ Images: 1
+ Server Version: 28.5.2
+ Storage Driver: overlay2
+ ...
+ Product License: Community Engine
+ Default Address Pools:
+   ...
+
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
 ```
 
 **도커 확인시 만날 수 있는 에러 상황**
@@ -164,7 +193,7 @@ git version 2.53.0
 7. cat file.txt             # 파일 내용 확인
 8. cp file.txt copy.txt     # 복사
 9. mv copy.txt renamed.txt  # 이동/이름변경
-10. rm renamed.txt          # 삭제
+10. rm file.txt             # 삭제
 <br>
 <br>
 
@@ -196,12 +225,10 @@ sevencvter4085@c6r5s6 E1-1 % pwd
 ```
 sevencvter4085@c6r8s8 E1-1 % ls -a
 .		.DS_Store	image		README.md
-..		.git		mission1.md	test_dir
 
 sevencvter4085@c6r8s8 E1-1 % ls -l 
 total 72
 drwxr-xr-x  5 sevencvter4085  sevencvter4085    160  7 30 21:35 image
--rw-r--r--  1 sevencvter4085  sevencvter4085  12590  7 30 21:35 mission1.md
 -rw-r--r--  1 sevencvter4085  sevencvter4085  19004  7 30 23:24 README.md
 drwxr-xr-x  4 sevencvter4085  sevencvter4085    128  7 30 23:32 test_dir
 
@@ -212,7 +239,6 @@ drwx------+  5 sevencvter4085  sevencvter4085    160  7 30 23:28 ..
 -rw-r--r--   1 sevencvter4085  sevencvter4085   6148  7 30 23:30 .DS_Store
 drwxr-xr-x  12 sevencvter4085  sevencvter4085    384  7 30 21:36 .git
 drwxr-xr-x   5 sevencvter4085  sevencvter4085    160  7 30 21:35 image
--rw-r--r--   1 sevencvter4085  sevencvter4085  12590  7 30 21:35 mission1.md
 -rw-r--r--   1 sevencvter4085  sevencvter4085  19004  7 30 23:24 README.md
 drwxr-xr-x   4 sevencvter4085  sevencvter4085    128  7 30 23:32 test_dir
 ```
@@ -266,14 +292,14 @@ empty.txt	renamed.txt
 sevencvter4085@c6r8s8 test_dir % 
 sevencvter4085@c6r8s8 test_dir % cd ..
 sevencvter4085@c6r8s8 E1-1 % ls
-file.txt	image		mission1.md	README.md	test_dir
+file.txt	image		README.md	test_dir
 ```
 
 10). 파일 삭제
 ```
 sevencvter4085@c6r5s6 E1-1 % rm file.txt
 sevencvter4085@c6r8s8 E1-1 % ls
-image		mission1.md	README.md	test_dir
+image		README.md	test_dir
 ```
 
 **절대 경로를 쓸 때**
@@ -304,6 +330,8 @@ image		mission1.md	README.md	test_dir
         - 5~7번째 3글자	그룹 권한
         - 8~10번째 3글자 기타 사용자 권한
     - `755` = `-rwxr-xr-x`, `644` = `-rw-r--r--`
+- 일반 파일의 x 권한: 파일을 프로그램이나 스크립트로 실행할 수 있는 권한
+- 디렉터리의 x 권한: 해당 디렉터리로 진입하고 내부 항목에 접근할 수 있는 권한
 
 | 권한    |   이진수 | 8진수 | 의미          |
 | ----- | ----: | --: | ------------    |
@@ -314,24 +342,25 @@ image		mission1.md	README.md	test_dir
 | `---` | `000` | `0` | 권한 없음         |
 
 
-파일 권한 실험
+파일 권한 실습
 ```
-sevencvter4085@c6r5s6 E1-1 % ls -l file.txt
--rw-r--r--  1 sevencvter4085  sevencvter4085  6 Jul 29 21:35 file.txt
-sevencvter4085@c6r5s6 E1-1 % chmod 755 file.txt
-sevencvter4085@c6r5s6 E1-1 % ls -l file.txt    
--rwxr-xr-x  1 sevencvter4085  sevencvter4085  6 Jul 29 21:35 file.txt
+sevencvter4085@c6r9s8 test_dir % ls -l empty.txt
+-rw-r--r--  1 sevencvter4085  sevencvter4085  0 Aug  3 13:05 empty.txt
+sevencvter4085@c6r9s8 test_dir % chmod 755 empty.txt 
+sevencvter4085@c6r9s8 test_dir % ls -l empty.txt
+-rwxr-xr-x  1 sevencvter4085  sevencvter4085  0 Aug  3 13:05 empty.txt
+sevencvter4085@c6r9s8 test_dir % chmod 644 empty.txt
+sevencvter4085@c6r9s8 test_dir % ls -l empty.txt
+-rw-r--r--  1 sevencvter4085  sevencvter4085  0 Aug  3 13:05 empty.txt
 ```
 
-디렉토리 권한 실험
+디렉토리 권한 실습
 ```
 sevencvter4085@c6r5s6 E1-1 % ls -ld test_dir   
 drwxr-xr-x  2 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
-
 sevencvter4085@c6r9s8 E1-1 % chmod 644 test_dir
 sevencvter4085@c6r9s8 E1-1 % ls -ld test_dir   
 drw-r--r--  4 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
-
 sevencvter4085@c6r5s6 E1-1 % chmod 755 test_dir
 sevencvter4085@c6r5s6 E1-1 % ls -ld test_dir
 drwxr-xr-x  4 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
@@ -359,7 +388,10 @@ Docker version 28.5.2, build ecc6942
 
 **상세버전**
 - Server 부분이 나오면 데몬이 살아있다는 증거이다.
-- 맨 아래 `WARNING`은 Docker가 기본적으로 사용하는 `iptables`리리눅스 방화벽 기능이 비활성화되어 있어서 발생한다. 컨테이너에 중요한 정보가 없고 외부망에 노출된 환경도 아니므로 무시했다.
+- 맨 아래 `WARNING`은 Docker가 기본적으로 사용하는 `iptables` 리눅스 방화벽 기능이 비활성화되어 있어서 발생한다
+- 해당 `WARNING`은 현재 OrbStack 네트워크 설정에서 출력된 환경별 경고이다.
+- 이번 실습에서는 컨테이너 실행과 로컬 포트 접속이 정상인지 별도로 확인했다.
+- 다른 장비에서는 동일한 `WARNING`이 나타나지 않을 수 있다.
 
 
 ```
@@ -489,7 +521,8 @@ Cannot connect to the Docker daemon at unix:**** Is the docker daemon running?
         - The container name "/my-web" is already in use
     - 이 경우 기존 컨테이너를 삭제하거나 다른 이름을 사용해야 한다.
         - docker rm -f my-web
-    - 실행 중인 Docker는 `Ctrl+C`로 종료 가능
+    - `Ctrl+C`는 현재 터미널에 연결된 foreground 프로세스를 중단한다.
+    - `-d` 옵션으로 백그라운드 실행한 컨테이너는 `docker stop`으로 중지한다.
 
 6. 실행 중인 컨테이너 확인
     - `docker ps` → 실행 중인 것만
@@ -536,7 +569,7 @@ hello-world   latest    e2ac70e7319a   4 months ago   10.1kB
 **docker ps는 실행 중인 컨테이너 확인이라 출력에 포함 되지 않음**
 **docker ps -a로 종료된 컨테이너 확인시 hello-world 컨테이너 STATUS(Exited) 확인 가능**
 ```
-sevencvter4085@c6r9s8 ~ % docker run hello-world
+sevencvter4085@c6r9s8 ~ % docker run --name hello-world-test hello-world
 
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
@@ -564,7 +597,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
 sevencvter4085@c6r9s8 ~ % docker ps -a
 CONTAINER ID   IMAGE         COMMAND    CREATED          STATUS                      PORTS     NAMES
-9677d488f331   hello-world   "/hello"   21 seconds ago   Exited (0) 20 seconds ago             confident_brahmagupta
+9677d488f331   hello-world   "/hello"   21 seconds ago   Exited (0) 20 seconds ago             hello-world-test
 ```
 
 **docker logs**
@@ -604,6 +637,15 @@ sevencvter4085@c6r9s8 ~ % docker stats --no-stream 9677d488f331
 CONTAINER ID   NAME                    CPU %     MEM USAGE / LIMIT   MEM %     NET I/O   BLOCK I/O   PIDS
 9677d488f331   confident_brahmagupta   0.00%     0B / 0B             0.00%     0B / 0B   0B / 0B     0
 ``` 
+
+**nginx로 stats 실습**
+```
+sevencvter4085@c6r9s8 E1-1 % docker run -d --name stats-test nginx:alpine
+a70892e943bf8cd2acca7976d0e88aa9490140cab63c826ee78f9f298630ff17
+sevencvter4085@c6r9s8 E1-1 % docker stats --no-stream stats-test
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT     MEM %     NET I/O       BLOCK I/O         PIDS
+a70892e943bf   stats-test   0.00%     6.047MiB / 15.67GiB   0.04%     830B / 126B   10.2MB / 8.19kB   7
+```
 
 
 ## 5) 컨테이너 실행
@@ -763,8 +805,15 @@ LOGO=ubuntu-logo
 
 **ubuntu 실행**
 ```
-sevencvter4085@c6r9s8 ~ % docker run -it ubuntu /bin/bash
-root@50f085ca99ac:/# 
+sevencvter4085@c6r9s8 E1-1 % docker run -dit --name ubuntu-attach-test ubuntu /bin/bash 
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+ed819469700f: Pull complete 
+a3679419df18: Pull complete 
+Digest: sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb
+Status: Downloaded newer image for ubuntu:latest
+56b963dfcf4a2aa485ba8cc4fdb3ad9169f036f208c4ddd5fbfeab70d893686b
+sevencvter4085@c6r9s8 E1-1 % 
 ```
 
 **컨테이너를 종료하지 않고 호스트로**
@@ -777,13 +826,13 @@ root@50f085ca99ac:/#
 ```
 sevencvter4085@c6r9s8 ~ % docker ps
 CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES
-50f085ca99ac   ubuntu    "/bin/bash"   51 seconds ago   Up 50 seconds             gifted_bouman
+50f085ca99ac   ubuntu    "/bin/bash"   51 seconds ago   Up 50 seconds             ubuntu-attach-test
 ```
 
 
 **attach 실습**
 ```
-sevencvter4085@c6r9s8 ~ % docker attach 50f085ca99ac
+sevencvter4085@c6r9s8 ~ % docker attach ubuntu-attach-test
 root@50f085ca99ac:/# 
 
 root@50f085ca99ac:/# echo "attach connected"
@@ -797,7 +846,7 @@ root@50f085ca99ac:/# hostname
 
 **exit**
 ```
-sevencvter4085@c6r9s8 ~ % docker attach 50f085ca99ac              
+sevencvter4085@c6r9s8 ~ % docker attach ubuntu-attach-test              
 root@50f085ca99ac:/# exit
 exit
 sevencvter4085@c6r9s8 ~ % docker ps
@@ -806,13 +855,13 @@ CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS         PORTS     
 
 sevencvter4085@c6r9s8 ~ % docker ps -a 
 CONTAINER ID   IMAGE         COMMAND       CREATED          STATUS                     PORTS     NAMES
-50f085ca99ac   ubuntu        "/bin/bash"   15 minutes ago   Exited (0) 2 minutes ago             gifted_bouman
+50f085ca99ac   ubuntu        "/bin/bash"   15 minutes ago   Exited (0) 2 minutes ago             ubuntu-attach-test
 434e4fdcdf6a   ubuntu        "/bin/bash"   8 minutes ago   Up 8 minutes                      trusting_chebyshev
 ```
 
 **컨테이너 삭제 **
 ```
-sevencvter4085@c6r9s8 ~ % docker rm 50f085ca99ac
+sevencvter4085@c6r9s8 ~ % docker rm -f ubuntu-attach-test
 50f085ca99ac
 sevencvter4085@c6r9s8 ~ % docker ps -a          
 CONTAINER ID   IMAGE         COMMAND       CREATED         STATUS                  PORTS     NAMES
@@ -822,21 +871,21 @@ CONTAINER ID   IMAGE         COMMAND       CREATED         STATUS               
 **exec 실습**
 **ubuntu 실행**
 ```
-sevencvter4085@c6r9s8 E1-1 % docker run -it ubuntu /bin/bash
-root@434e4fdcdf6a:/# 
+sevencvter4085@c6r9s8 E1-1 % docker run -dit --name ubuntu-attach-test ubuntu /bin/bash
+17419b934ade1410163069d7f296f62023795352280613b98c0c933e81e79ffd
 ```
 
 **실행중인 컨테이너 확인**
 ```
 sevencvter4085@c6r9s8 E1-1 % docker ps
-CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES
-4e7308a4b4c7   ubuntu    "/bin/bash"   12 seconds ago   Up 12 seconds             laughing_grothendieck
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+17419b934ade   ubuntu         "/bin/bash"              11 seconds ago   Up 10 seconds                                             ubuntu-attach-test
 ```
 
 **exec로 ls 명령어 실행**
 **해당 컨테이너에 직접 들어가지 않게 됨**
 ```
-sevencvter4085@c6r9s8 E1-1 % docker exec 4e7308a4b4c7 ls /
+sevencvter4085@c6r9s8 E1-1 % docker exec ubuntu-attach-test ls /
 bin
 boot
 dev
@@ -860,8 +909,8 @@ var
 
 **exec를 이용해서 파일 생성 후 확인**
 ```
-sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac touch /test.txt
-sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac ls /         
+sevencvter4085@c6r9s8 ~ % docker exec ubuntu-attach-test touch /test.txt
+sevencvter4085@c6r9s8 ~ % docker exec ubuntu-attach-test ls /         
 bin
 boot
 dev
@@ -888,6 +937,8 @@ var
 ## 6) Dockerfile 기반 커스텀 이미지 제작
 **index.html 생성 후 확인**
 ```
+sevencvter4085@c6r9s8 E1-1 % % mkdir app
+sevencvter4085@c6r9s8 E1-1 % cd app
 sevencvter4085@c6r9s8 app % nano index.html
 sevencvter4085@c6r9s8 app % ls
 index.html
@@ -1007,7 +1058,7 @@ hello-world    latest    e2ac70e7319a   4 months ago    10.1kB
 
 **커스텀 컨테이너 실행 후 상태 확인**
 ```
-docker run -d --name custom-nginx-container -p 8080:80 custom-nginx:v1
+sevencvter4085@c6r9s8 app % docker run -d --name custom-nginx-container -p 8080:80 custom-nginx:v1
 sevencvter4085@c6r9s8 app % docker ps
 CONTAINER ID   IMAGE             COMMAND                   CREATED          STATUS          PORTS                                     NAMES
 fe4a1fa1dcc4   custom-nginx:v1   "/docker-entrypoint.…"   2 minutes ago    Up 2 minutes    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   custom-nginx-container
@@ -1070,9 +1121,14 @@ healthy
 ```
 
 **포트 매핑 트러블 슈팅**
+**실습 환경 준비**
 ```
 sevencvter4085@c6r9s8 E1-1 % docker run -d --name port-conflict -p 8080:80 nginx:alpine 
-docker: Error response from daemon: Conflict. The container name "/port-conflict" is already in use by container "9c3621ac759e3194d1d6031443a62b80ed9c3576866bd7905ae0abf342ebcfba". You have to remove (or rename) that container to be able to reuse that name.
+```
+```
+sevencvter4085@c6r9s8 E1-1 % docker run -d --name port-conflict-2 -p 8080:80 nginx:alpine  
+937519d92cb7a6903a18b5c7d842ec060425f826a29a8444eb97d2dbdbf20e17
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint port-conflict-2 (45de1ac00b991079fd36e5f54a6813ad2ab86dd5fcfa0e2dc7eb6c1afa541226): Bind for 0.0.0.0:8080 failed: port is already allocated
 
 Run 'docker run --help' for more information
 ```
@@ -1083,12 +1139,18 @@ Run 'docker run --help' for more information
 
 **호스트 포트 충돌 진단 순서**
 1. 오류 메시지에서 충돌한 호스트 포트를 확인, 이번 예시에서는 `8080`번 포트가 충돌한 상태이다.
+- 실패한 컨테이너 상태 확인
+```
+sevencvter4085@c6r9s8 E1-1 % docker ps -a --filter name=port-conflict-2
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS    PORTS     NAMES
+937519d92cb7   nginx:alpine   "/docker-entrypoint.…"   3 minutes ago   Created             port-conflict-2
+```
 
 2. 실행 중인 Docker 컨테이너가 해당 포트를 사용하는지 확인한다.
 ```
 sevencvter4085@c6r9s8 E1-1 % docker ps --filter publish=8080
-CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                                     NAMES
-6e55c435e2ce   nginx:alpine   "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-owner
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                                     NAMES
+703da95c17ba   nginx:alpine   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-conflict
 sevencvter4085@c6r9s8 E1-1 % 
 ```
 
@@ -1096,8 +1158,8 @@ sevencvter4085@c6r9s8 E1-1 %
 ```
 sevencvter4085@c6r9s8 E1-1 % lsof -nP -iTCP:8080 -sTCP:LISTEN
 COMMAND     PID           USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
-OrbStack  77039 sevencvter4085   85u  IPv4 0x687119518134096f      0t0  TCP *:8080 (LISTEN)
-OrbStack  77039 sevencvter4085  105u  IPv6 0x6d11734f65bc7793      0t0  TCP *:8080 (LISTEN)
+OrbStack  77039 sevencvter4085  106u  IPv4 0x21c50737e1775198      0t0  TCP *:8080 (LISTEN)
+OrbStack  77039 sevencvter4085  107u  IPv6 0x7a6390fae4807b3a      0t0  TCP *:8080 (LISTEN)
 ```
 
 4. 출력된 PID와 프로세스 정보를 확인한다.
@@ -1109,33 +1171,33 @@ sevencvter4085@c6r9s8 E1-1 % ps -p 77039 -o pid,ppid,command
 ```
 
 5. 포트를 사용하는 대상에 따라 조치한다.
-- 불필요한 Docker 컨테이너라면 중지한다.
+- 불필요한 Docker 컨테이너라면 중지한다.(현재 실습에서는 필요 없음)
 ```
 sevencvter4085@c6r9s8 E1-1 % docker stop 6e55c435e2ce
 6e55c435e2ce
 ```
 
-- Compose로 실행한 서비스라면 해당 디렉터리에서 종료한다.
+- Compose로 실행한 서비스라면 해당 디렉터리에서 종료한다.(현재 실습에서는 필요 없음)
 ```
 sevencvter4085@c6r9s8 E1-1 % docker compose down
 ```
 
-- 기존 서비스를 계속 사용해야 한다면 새로운 컨테이너의 호스트 포트를 다른 번호로 변경한다.
+- 기존 서비스를 계속 사용해야 한다면 새로운 컨테이너의 호스트 포트를 다른 번호로 변경한다.(선택)
+- 실패한 컨테이너의 포트 매핑은 생성 후 변경 불가로 삭제 후 다시 포트를 지정하여 생성
 ```
-sevencvter4085@c6r9s8 E1-1 % docker run -d --name custom-nginx-container-2 -p 8081:80 nginx:alpine
-ea85b616c6a21a35f0c892b3281341e265ff2984f3042a01f21f1cde6936ac89
-sevencvter4085@c6r9s8 E1-1 % docker ps
-CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
-ea85b616c6a2   nginx:alpine   "/docker-entrypoint.…"   5 seconds ago    Up 4 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   custom-nginx-container-2
-9c3621ac759e   nginx:alpine   "/docker-entrypoint.…"   12 minutes ago   Up 50 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-conflict
+sevencvter4085@c6r9s8 E1-1 % docker rm port-conflict-2
+port-conflict-2
+sevencvter4085@c6r9s8 E1-1 % docker run -d --name port-conflict-2 -p 8081:80 nginx:alpine
+c98417a26b83d6d5fe94357377a866a2c39219adaf364afbf41edda5b32df3ca
 ```
 
 6. 다시 실행한 후 정상 상태와 접속 여부를 확인한다.
 ```
 sevencvter4085@c6r9s8 E1-1 % docker ps
 CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
-ea85b616c6a2   nginx:alpine   "/docker-entrypoint.…"   5 seconds ago    Up 4 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   custom-nginx-container-2
-9c3621ac759e   nginx:alpine   "/docker-entrypoint.…"   12 minutes ago   Up 50 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-conflict
+c98417a26b83   nginx:alpine   "/docker-entrypoint.…"   9 seconds ago    Up 9 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   port-conflict-2
+703da95c17ba   nginx:alpine   "/docker-entrypoint.…"   9 minutes ago    Up 9 minutes    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-conflict
+17419b934ade   ubuntu         "/bin/bash"              17 minutes ago   Up 17 minutes                                             ubuntu-attach-test
 sevencvter4085@c6r9s8 E1-1 % curl http://localhost:8081
 <!DOCTYPE html>
 <html>
@@ -1337,9 +1399,9 @@ Docker Compose version v2.40.3
 
 **실습을 위한 폴더 생성 및 빈 폴더 확인**
 ```
-sevencvter4085@c6r9s8 E1-1 % mkdir docker-compose-basic
-sevencvter4085@c6r9s8 E1-1 % cd docker-compose-basic 
-sevencvter4085@c6r9s8 docker-compose-basic % ls -la
+sevencvter4085@c6r9s8 E1-1 % mkdir bonus1
+sevencvter4085@c6r9s8 E1-1 % cd bonus1 
+sevencvter4085@c6r9s8 bonus1 % ls -la
 total 0
 drwxr-xr-x   2 sevencvter4085  sevencvter4085   64  8  2 20:48 .
 drwxr-xr-x  11 sevencvter4085  sevencvter4085  352  8  2 20:48 ..
@@ -1486,8 +1548,9 @@ security features and capabilities please refer to
 - `docker compose logs` > 전체 서비스 확인
 - `docker compose logs web` > web 서비스만 확인
 - `docker compose logs -f web` > 실시간 확인
+- `docker compose logs -f --tail 20 web`
 ```
-evencvter4085@c6r9s8 docker-compose-basic % docker compose logs -f web
+evencvter4085@c6r9s8 docker-compose-basic % docker compose logs -f --tail 20 web
 web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
 ...
 web-1  | 2026/08/02 12:01:43 [notice] 1#1: start worker process 35
