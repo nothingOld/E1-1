@@ -22,37 +22,32 @@
 - macOS 사용
 - OrbStack 사용 (sudo 없이 Docker 실행 가능)
 
-
 ---
+
 ## 프로젝트 디렉터리 구조
 ```
 E1-1/
 ├── app/
+│   ├── default.conf
 │   ├── Dockerfile
-│   ├── index.html
-│   └── default.conf
+│   └── index.html
 ├── bonus1/
 │   └── docker-compose.yml
 ├── bonus2/
-│   └── compose.yaml
+│   └── docker-compose.yml
 ├── bonus3/
-│   ├── compose.yaml
-│   ├── default.conf.template
-│   └── .env.example
+│   └── compose.yaml
 ├── bonus4/
+│   ├── .env.example
 │   ├── compose.yaml
-│   ├── default.conf.template
-│   └── .env.example
-├── bonus5/
-│   ├── compose.yaml
-│   ├── default.conf.template
-│   └── .env.example
+│   └── default.conf.template
 ├── image/
 │   └── 실행 결과 스크린샷
 ├── test_dir/
+│   ├── empty.txt
+│   └── renamed.txt
 ├── .gitignore
-├── README.md
-└── mission1.md
+└── README.md
 ```
 - app/: 커스텀 Nginx 이미지 빌드에 필요한 파일을 함께 관리
 - bonus1~5/: 각 실습이 서로 영향을 주지 않도록 과제별로 분리
@@ -332,13 +327,14 @@ sevencvter4085@c6r5s6 E1-1 % ls -l file.txt
 ```
 sevencvter4085@c6r5s6 E1-1 % ls -ld test_dir   
 drwxr-xr-x  2 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
-sevencvter4085@c6r5s6 E1-1 % chmod 644 test_dir
-sevencvter4085@c6r5s6 E1-1 % ls -ld test_dir   
-drw-r--r--  2 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
 
-//TODO: 권한 복구 작성 필요
-chmod 755 test_dir
-ls -ld test_dir
+sevencvter4085@c6r9s8 E1-1 % chmod 644 test_dir
+sevencvter4085@c6r9s8 E1-1 % ls -ld test_dir   
+drw-r--r--  4 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
+
+sevencvter4085@c6r5s6 E1-1 % chmod 755 test_dir
+sevencvter4085@c6r5s6 E1-1 % ls -ld test_dir
+drwxr-xr-x  4 sevencvter4085  sevencvter4085  64 Jul 29 21:34 test_dir
 ```
 
 
@@ -487,7 +483,8 @@ Cannot connect to the Docker daemon at unix:**** Is the docker daemon running?
     4) 컨테이너 이름을 my-web으로 지정한다.
     5) Nginx를 백그라운드에서 실행한다.
 
-5. 주의할 점(트러블슈팅)
+//TODO: 트러블 슈팅
+5. 주의할 점
     - 같은 이름의 컨테이너가 이미 존재한다면 다음과 같은 충돌 오류가 발생한다.
         - The container name "/my-web" is already in use
     - 이 경우 기존 컨테이너를 삭제하거나 다른 이름을 사용해야 한다.
@@ -786,8 +783,7 @@ CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS   
 
 **attach 실습**
 ```
-//TODO: docker attach는 일반적으로 컨테이너 안이 아니라 호스트 터미널에서 실행
-root@50f085ca99ac:/# docker attach 50f085ca99ac
+sevencvter4085@c6r9s8 ~ % docker attach 50f085ca99ac
 root@50f085ca99ac:/# 
 
 root@50f085ca99ac:/# echo "attach connected"
@@ -826,22 +822,21 @@ CONTAINER ID   IMAGE         COMMAND       CREATED         STATUS               
 **exec 실습**
 **ubuntu 실행**
 ```
-sevencvter4085@c6r9s8 ~ % docker run -it ubuntu /bin/bash
+sevencvter4085@c6r9s8 E1-1 % docker run -it ubuntu /bin/bash
 root@434e4fdcdf6a:/# 
 ```
 
 **실행중인 컨테이너 확인**
 ```
-sevencvter4085@c6r9s8 ~ % docker ps
-CONTAINER ID   IMAGE     COMMAND       CREATED              STATUS              PORTS     NAMES
-434e4fdcdf6a   ubuntu    "/bin/bash"   About a minute ago   Up About a minute             trusting_chebyshev
+sevencvter4085@c6r9s8 E1-1 % docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED          STATUS          PORTS     NAMES
+4e7308a4b4c7   ubuntu    "/bin/bash"   12 seconds ago   Up 12 seconds             laughing_grothendieck
 ```
 
 **exec로 ls 명령어 실행**
 **해당 컨테이너에 직접 들어가지 않게 됨**
 ```
-//TODO: 삭제한 컨테이너IDfh exec 실행??
-sevencvter4085@c6r9s8 ~ % docker exec 50f085ca99ac ls /
+sevencvter4085@c6r9s8 E1-1 % docker exec 4e7308a4b4c7 ls /
 bin
 boot
 dev
@@ -861,7 +856,6 @@ sys
 tmp
 usr
 var
-sevencvter4085@c6r9s8 ~ % 
 ```
 
 **exec를 이용해서 파일 생성 후 확인**
@@ -1075,6 +1069,94 @@ X-Custom-Image: custom-nginx-v1
 healthy
 ```
 
+**포트 매핑 트러블 슈팅**
+```
+sevencvter4085@c6r9s8 E1-1 % docker run -d --name port-conflict -p 8080:80 nginx:alpine 
+docker: Error response from daemon: Conflict. The container name "/port-conflict" is already in use by container "9c3621ac759e3194d1d6031443a62b80ed9c3576866bd7905ae0abf342ebcfba". You have to remove (or rename) that container to be able to reuse that name.
+
+Run 'docker run --help' for more information
+```
+- 호스트 포트 충돌
+- Docker 컨테이너 실행 시 다음과 같이 호스트 포트가 이미 사용 중이라는 오류가 발생할 수 있다.
+- `-p 8080:80`에서 앞의 `8080`은 호스트인 Mac의 포트이고 뒤의 `80`은 컨테이너 내부 포트이다.
+- 따라서 위 오류는 컨테이너 내부의 80번 포트가 아니라 Mac의 8080번 포트를 다른 컨테이너나 프로그램이 이미 사용하고 있다는 의미이다.
+
+**호스트 포트 충돌 진단 순서**
+1. 오류 메시지에서 충돌한 호스트 포트를 확인, 이번 예시에서는 `8080`번 포트가 충돌한 상태이다.
+
+2. 실행 중인 Docker 컨테이너가 해당 포트를 사용하는지 확인한다.
+```
+sevencvter4085@c6r9s8 E1-1 % docker ps --filter publish=8080
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                                     NAMES
+6e55c435e2ce   nginx:alpine   "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-owner
+sevencvter4085@c6r9s8 E1-1 % 
+```
+
+3. Docker 컨테이너가 아니라 Mac의 다른 프로그램이 사용하는지 확인한다.
+```
+sevencvter4085@c6r9s8 E1-1 % lsof -nP -iTCP:8080 -sTCP:LISTEN
+COMMAND     PID           USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+OrbStack  77039 sevencvter4085   85u  IPv4 0x687119518134096f      0t0  TCP *:8080 (LISTEN)
+OrbStack  77039 sevencvter4085  105u  IPv6 0x6d11734f65bc7793      0t0  TCP *:8080 (LISTEN)
+```
+
+4. 출력된 PID와 프로세스 정보를 확인한다.
+- `<PID>`에는 `lsof` 결과에서 확인한 실제 PID를 입력한다.
+```
+sevencvter4085@c6r9s8 E1-1 % ps -p 77039 -o pid,ppid,command
+  PID  PPID COMMAND
+77039     1 /Applications/OrbStack.app/Contents/Frameworks/OrbStack Helper.app/Contents/MacOS/OrbStack Helper vmgr -build-id 1763632535 -handoff
+```
+
+5. 포트를 사용하는 대상에 따라 조치한다.
+- 불필요한 Docker 컨테이너라면 중지한다.
+```
+sevencvter4085@c6r9s8 E1-1 % docker stop 6e55c435e2ce
+6e55c435e2ce
+```
+
+- Compose로 실행한 서비스라면 해당 디렉터리에서 종료한다.
+```
+sevencvter4085@c6r9s8 E1-1 % docker compose down
+```
+
+- 기존 서비스를 계속 사용해야 한다면 새로운 컨테이너의 호스트 포트를 다른 번호로 변경한다.
+```
+sevencvter4085@c6r9s8 E1-1 % docker run -d --name custom-nginx-container-2 -p 8081:80 nginx:alpine
+ea85b616c6a21a35f0c892b3281341e265ff2984f3042a01f21f1cde6936ac89
+sevencvter4085@c6r9s8 E1-1 % docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+ea85b616c6a2   nginx:alpine   "/docker-entrypoint.…"   5 seconds ago    Up 4 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   custom-nginx-container-2
+9c3621ac759e   nginx:alpine   "/docker-entrypoint.…"   12 minutes ago   Up 50 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-conflict
+```
+
+6. 다시 실행한 후 정상 상태와 접속 여부를 확인한다.
+```
+sevencvter4085@c6r9s8 E1-1 % docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+ea85b616c6a2   nginx:alpine   "/docker-entrypoint.…"   5 seconds ago    Up 4 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   custom-nginx-container-2
+9c3621ac759e   nginx:alpine   "/docker-entrypoint.…"   12 minutes ago   Up 50 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   port-conflict
+sevencvter4085@c6r9s8 E1-1 % curl http://localhost:8081
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+...
+</body>
+</html>
+sevencvter4085@c6r9s8 E1-1 % 
+```
+
+**핵심정리**
+- 호스트 포트 충돌이 발생하면 바로 프로세스를 강제 종료하지 않고 다음 순서로 확인한다.
+- 오류 포트 확인 → Docker 컨테이너 확인 → Mac 프로세스 확인 → 점유 대상 판단 → 컨테이너 중지 또는 포트 변경 → 재실행 및 접속 검증
 
 ## 7) Docker 볼륨 영속성 검증
 - 도커 볼륨 영속성이란 컨테이너를 삭제해도 저장한 데이터가 유지되는 성질
@@ -1088,11 +1170,52 @@ healthy
 - 예를 들어 데이터베이스 파일을 볼륨에 저장하면, 기존 DB 컨테이너를 삭제하고 새로 만들어도 같은 볼륨을 연결하여 데이터를 그대로 사용할 수 있다.
 **핵심: 컨테이너는 삭제할 수 있는 실행 환경이고, 볼륨은 데이터를 지속적으로 보관하는 저장 공간이다.**
 
+**컨테이너 삭제 후 데이터가 사라지는 상황과 방지 대안**
+- 컨테이너 내부 경로에만 파일을 저장하면 해당 데이터는 컨테이너의 쓰기 가능 계층에 저장된다.
+- 따라서 컨테이너를 삭제하면 컨테이너 내부에만 저장된 데이터도 함께 사라질 수 있다.
+- 예를 들어 다음 명령으로 생성한 컨테이너 안에 파일을 저장하더라도, 별도의 볼륨을 연결하지 않았다면 컨테이너 삭제 후 해당 파일을 다시 사용할 수 없다.
+
+**방지 대안 1: Docker named volume 사용**
+- `my-data` 볼륨은 컨테이너와 별도로 Docker가 관리하므로, `vol-test` 컨테이너를 삭제해도 볼륨 데이터는 유지된다.
+```
+docker volume create my-data
+docker run -d --name vol-test -v my-data:/app-data ubuntu sleep infinity
+```
+
+**방지 대안 2: bind mount 사용**
+- 호스트에서 직접 확인하거나 수정해야 하는 파일은 bind mount를 사용할 수 있다.
+- `data` 폴더와 컨테이너의 `/app-data` 디렉터리를 연결한다.
+- 컨테이너를 삭제해도 데이터는 Mac의 data 폴더에 남는다.
+```
+docker run -d --name bind-test -v "$(pwd)/data:/app-data" ubuntu sleep infinity
+```
+
+**방지 대안 3: 중요 데이터 백업**
+- 볼륨은 컨테이너 삭제로부터 데이터를 보호하지만, 볼륨 자체를 삭제하면 데이터도 사라진다.
+- 따라서 중요한 데이터는 Docker 볼륨에만 의존하지 않고 별도의 위치에 주기적으로 백업해야 한다.
+- 삭제 명령 사용 시 주의
+    - 다음 명령은 Compose 컨테이너와 네트워크를 삭제하지만, 일반적으로 named volume은 유지한다.
+    - 반면 `-v` 옵션을 추가하면 Compose에서 사용한 볼륨까지 함께 삭제될 수 있다.
+    - 따라서 영속 데이터를 유지해야 하는 상황에서는 `docker compose down -v`를 신중하게 사용해야 한다.
+```
+docker compose down
+docker compose down -v
+```
+
+**핵심정리**
+- 컨테이너 내부에만 저장한 데이터는 컨테이너 삭제 시 사라질 수 있다.
+- 영속 데이터는 named volume 또는 bind mount에 저장한다.
+- named volume은 Docker가 관리하는 데이터 저장 공간이다.
+- bind mount는 Mac의 실제 폴더와 컨테이너 폴더를 연결하는 방식이다.
+- 중요한 데이터는 별도로 백업한다.
+- docker compose down -v는 볼륨까지 삭제할 수 있으므로 주의한다.
+
 **볼륨 생성 및 연결**
 ```
 sevencvter4085@c6r9s8 E1-1 % docker volume create my-data
+my-data
 sevencvter4085@c6r9s8 E1-1 % docker run -d --name vol-test -v my-data:/app-data ubuntu sleep infinity
-cf9dacbb3888f9edb1445aefcc0cfb56afe25a6b1f3267f0c5be81fb09e1322b
+b447e0b86b319b7b9aaed5ef5620e56c98bb4b9050a2a216a95fec86d3f8c0ea
 ```
 
 **데이터 쓰기 및 컨테이너 강제 삭제**
@@ -1107,15 +1230,14 @@ vol-test
 sevencvter4085@c6r9s8 E1-1 % docker run --rm -v my-data:/app-data ubuntu cat /app-data/log.txt
 preserved
 
-//TODO: vol-test 를 삭제 했는데 생성과정 없는 volume-test-2
 sevencvter4085@c6r9s8 E1-1 % docker ps -a
-CONTAINER ID   IMAGE     COMMAND               CREATED         STATUS         PORTS     NAMES
-cf049ee3fc71   ubuntu    "tail -f /dev/null"   7 minutes ago   Up 7 minutes             volume-test-2
+CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS         PORTS     NAMES
+4e7308a4b4c7   ubuntu    "/bin/bash"   2 minutes ago   Up 2 minutes             laughing_grothendieck
+
 
 sevencvter4085@c6r9s8 E1-1 % docker volume ls
 DRIVER    VOLUME NAME
 local     my-data
-local     practice-volume
 ```
 
 ## 8) Git 설정 및 GitHub 연동
@@ -1145,19 +1267,21 @@ user.email=****
 ...
 remote.origin.url=https://github.com/nothingOld/E1-1.git
 ...
-branch.main.remote=origin
-branch.main.merge=refs/heads/main
-branch.main.vscode-merge-base=origin/main
 sevencvter4085@c6r9s8 E1-1 % 
 ```
 
 **GitHub 로그인 및 저장소 연동을 완료하고, 연동 증거(스크린샷 등)를 기술 문서에 첨부**
 **Github 로그인 brew로 설치가 안됨**
 ```
-//TODO: 아래의 명령어 실행 후 에러 남기기 -> 트러블 슈팅
+//TODO: 트러블 슈팅
 sevencvter4085@c6r9s8 E1-1 % gh auth login
+zsh: command not found: gh
+
 sevencvter4085@c6r9s8 E1-1 % gh auth setup-git
-sevencvter4085@c6r9s8 E1-1 % gh auth status
+zsh: command not found: gh
+
+sevencvter4085@c6r9s8 E1-1 % gh auth status   
+zsh: command not found: gh
 ```
 
 **원격 저장소 연결**
@@ -2091,12 +2215,7 @@ origin  git@github.com:nothingOld/E1-1.git (push)
 ```
 
 //TODO:
-- 호스트 포트 충돌 진단 순서
-- 데이터가 사라지는 상황과 방지 대안
 - 가장 어려웠던 문제: 가설 → 확인 → 조치
-- 이미지/컨테이너 정리 증거 보완
-- Git 기본 브랜치 설정 눌락
-- 트러블슈팅 1건 추가 필요
 
 추가 학습이 필요한 부분
 - 이미지의 불변 계층과 컨테이너의 쓰기 가능 계층
